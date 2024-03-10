@@ -1,5 +1,15 @@
-version: "24.0"  # Specify the Docker Compose version
+version: "24.0"  # Adjust version if needed
 
 services:
-  my-app:  # Name your service
-    build: .  # Build the image from the current directory (./Dockerfile)
+  frontend:
+    build: 
+      context: .
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "8080:80"
+  backend:
+    build: 
+      context: .
+      dockerfile: backend.Dockerfile
+    ports:
+      - "3000:3000"
