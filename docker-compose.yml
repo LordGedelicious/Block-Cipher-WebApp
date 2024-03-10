@@ -1,0 +1,5 @@
+version: "24.0"  # Specify the Docker Compose version
+
+services:
+  my-app:  # Name your service
+    build: .  # Build the image from the current directory (./Dockerfile)
