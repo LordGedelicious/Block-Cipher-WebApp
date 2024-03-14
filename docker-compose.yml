@@ -1,15 +1,15 @@
-version: "24.0"  # Adjust version if needed
+version: "3.9"  # This is the latest docker compose version, the last legacy version is 3.8, so defining 3.9 means we don't support legacy versions
 
 services:
   frontend:
     build: 
       context: .
-      dockerfile: frontend.Dockerfile
+      dockerfile: Dockerfile.frontend # This is the naming convention for a dockerfile
     ports:
-      - "8080:80"
+      - "8080:3000" # This is port forwarding, that means that port 3000 on the container will be forwarded to port 8080 on the host machine
   backend:
     build: 
       context: .
-      dockerfile: backend.Dockerfile
+      dockerfile: Dockerfile.backend # Same as above
     ports:
-      - "3000:3000"
+      - "3000:8080" # Remember "Host:Container"
