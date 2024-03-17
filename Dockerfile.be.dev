@@ -1,0 +1,14 @@
+FROM golang:alpine AS backend
+
+WORKDIR /app
+
+RUN go install github.com/cosmtrek/air@latest
+
+COPY ./backend/go.mod ./backend/go.sum ./
+
+RUN go mod download
+
+# This is the port that the application will listen on inside the container
+EXPOSE 8080
+
+CMD ["air", "-c", "./config/.air.toml"]

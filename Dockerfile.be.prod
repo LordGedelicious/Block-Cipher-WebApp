@@ -1,0 +1,33 @@
+FROM golang:alpine AS backend
+
+FROM backend AS builder
+
+# This is the directory within the container
+WORKDIR /app
+
+# Copy the go modules definer first
+COPY ./backend/go.mod ./backend/go.sum ./
+
+# install the modules
+RUN go mod download
+
+# copy everything else
+COPY backend/ .
+
+# build the executable
+RUN go build -o backend.exe -ldflags "-s -w" .
+
+# give it run permissions
+RUN chmod +x ./backend.exe
+
+FROM alpine:latest
+
+WORKDIR /var/bin
+
+COPY --from=builder /app/backend.exe .
+
+# This is the port that the application will listen on inside the container
+EXPOSE 8080
+
+# run the executable, CMD or ENTRYPOINT will attach itself as the main process in the container
+CMD ["./backend.exe"]

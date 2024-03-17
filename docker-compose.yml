@@ -4,12 +4,20 @@ services:
   frontend:
     build: 
       context: .
-      dockerfile: Dockerfile.frontend # This is the naming convention for a dockerfile
+      dockerfile: Dockerfile.fe.dev # This is the naming convention for a dockerfile
     ports:
-      - "8080:3000" # This is port forwarding, that means that port 3000 on the container will be forwarded to port 8080 on the host machine
+      - "3000:3000" # This is port forwarding, that means that port 3000 on the container will be forwarded to port 8080 on the host machine
+    volumes:
+      - ./frontend:/app # This is a volume, it means that the current directory will be mounted to /app in the container, so any changes in the current directory will be reflected in the container
+      - /app/node_modules/
+
   backend:
     build: 
       context: .
-      dockerfile: Dockerfile.backend # Same as above
+      dockerfile: Dockerfile.be.dev # Same as above
     ports:
-      - "3000:8080" # Remember "Host:Container"
+      - "8080:8080" # Remember "Host:Container"
+    volumes:
+      - ./backend:/app
+      - ./config/dev:/app/config
+      - /app/tmp/

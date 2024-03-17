@@ -1,0 +1,17 @@
+FROM node:18-alpine as builder
+
+WORKDIR /app
+
+COPY frontend/package.json ./
+
+RUN yarn install
+
+COPY frontend/ .
+
+RUN npm run build
+
+FROM rtsp/lighttpd
+
+COPY --from=builder /app/dist /var/www/html
+
+# COPY not-found.conf /etc/lighttpd/conf.d/not-found.conf <-- uncomment when making 404.html
