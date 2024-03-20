@@ -6,6 +6,12 @@ def text_to_hex(text):
 def hex_to_text(hex):
     return ''.join([chr(int(hex[i:i+2], 16)) for i in range(0, len(hex), 2)])
 
+def hex_to_bytes(hex):
+    return bytes([int(hex[i:i+2], 16) for i in range(0, len(hex), 2)])
+
+def bytes_to_hex(bytes):
+    return ''.join([hex(b)[2:] for b in bytes])
+
 def split_into_blocks(text, block_size=128):
     text_hex = text_to_hex(text)
     # 1 hexadecimal digit = 4 bits
@@ -17,6 +23,7 @@ def split_into_blocks(text, block_size=128):
     print(blocks)
     return blocks
 
-text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
-split_into_blocks(text)
+# text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+# print(type(split_into_blocks(text)[0]))
