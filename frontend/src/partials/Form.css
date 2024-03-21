@@ -1,0 +1,26 @@
+main {
+    height: fit-content;
+    padding-top: 20vh;
+    padding-bottom: 20vh;
+}
+
+.mode-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
+}
+
+@media screen and (min-width: 768px) {
+    main {
+        padding-top: 10vh;
+        padding-bottom: 10vh;
+    }
+
+    .mode-toggle {
+        position: relative;
+        top: 0;
+        right: 3rem;
+        z-index: inherit;
+    }
+}
