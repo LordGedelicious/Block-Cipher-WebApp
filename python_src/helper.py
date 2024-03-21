@@ -31,6 +31,16 @@ def arr_to_string(arr):
     # Join an array of 2-digit hexadecimal strings to a single hexadecimal string
     return ''.join(arr)
 
+def spliceKey(key):
+    # If key is less than 128 bit, pad it with 0s
+    # If key is more than 128 bit, take the first 128 bit
+    key_hex = text_to_hex(key)
+    if len(key_hex) < 32:
+        key_hex = key_hex.ljust(32, '0')
+    elif len(key_hex) > 32:
+        key_hex = key_hex[:32]
+    return key_hex
+
 # text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
 # print(type(split_into_blocks(text)[0]))
