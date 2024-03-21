@@ -24,6 +24,7 @@ def main():
     operation_mode = input("Choose operation mode (ECB/CBC/CFB/OFB/Counter Mode): ")
     key = input("Enter key: ")
     key = spliceKey(key)
+    plaintext = input("Enter plaintext: ")
     if mode == "encrypt":
         block_cipher = FeistelNetwork(plaintext, key)
         ciphertext = block_cipher.encrypt()
@@ -36,3 +37,6 @@ def main():
     else:
         print("Invalid mode")
         return
+
+if __name__ == "__main__":
+    main()
