@@ -7,7 +7,7 @@ function App() {
     <>
       <div>
         <a href="#" target="_blank">
-          <img src={gopherLogo} className="logo" alt="Vite logo" />
+          <img src={gopherLogo} className="logo" alt="Gopher logo" />
         </a>
       </div>
       <h1>GoBlockC</h1>
