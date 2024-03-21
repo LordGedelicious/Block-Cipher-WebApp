@@ -2,9 +2,10 @@ import gopherLogo from '/logo.png'
 import './App.css'
 
 function App() {
-  // request to backend, allow cors
+  // Encrypt
   fetch('http://localhost:8080/encrypt', {
-    method: 'GET',
+    method: 'POST',
+    body: JSON.stringify({ plaintext: 'Hello, Gopher!' }),
   })
     .then((response) => response.json())
     .then((data) => console.log(data))
