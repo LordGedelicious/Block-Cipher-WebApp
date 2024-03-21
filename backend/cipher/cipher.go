@@ -2,6 +2,7 @@ package cipher
 
 import (
 	"fmt"
+	// "block-cipher-webapp/backend/helper"
 )
 
 // function hello returns a string
@@ -158,7 +159,13 @@ func Encrypt(message, key, mode string) string {
     // fmt.Println(SubKeyGenerator(exampleKeyHex, 3))
 
 	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
-    // arr := []int{0x63, 0x7c, 0x77, 0x7b, 0xf2}
+
+	// Convert message and key to hexadecimal array
+	messageHex := []byte(message)
+	keyHex := []byte(key)
+	fmt.Println("messageHex", messageHex)
+	fmt.Println("keyHex", keyHex)
+
     return "Encrypted"
 }
 
