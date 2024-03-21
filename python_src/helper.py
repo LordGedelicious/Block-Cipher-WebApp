@@ -23,6 +23,13 @@ def split_into_blocks(text, block_size=128):
     print(blocks)
     return blocks
 
+def string_to_arr(string):
+    # Split a hexadecimal string to an array of 2-digit hexadecimal strings
+    return [hex(string[i:i+2]) for i in range(0, len(string), 2)]
+
+def arr_to_string(arr):
+    # Join an array of 2-digit hexadecimal strings to a single hexadecimal string
+    return ''.join(arr)
 
 # text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 

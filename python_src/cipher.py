@@ -1,5 +1,13 @@
 # Implementation of Sub-Bytes, Shift-Rows, S-Box, P-Box 
 
+def SubBytesSubstitutionArr(arr):
+    # Perform Sub-Bytes Substitution for an array of values
+    return [str(SubBytesSubstitution(val)) for val in arr]
+
+def InverseSubBytesSubstitutionArr(arr):
+    # Perform Inverse Sub-Bytes Substitution for an array of values
+    return [str(InverseSubBytesSubstitution(val)) for val in arr]
+
 def SubBytesSubstitution(value):
     # Substitusi Baris x Kolom
     # Contoh: 2F (ganti dengan nilai dari tabel S-Box pada baris 2 dan kolom F)
@@ -85,7 +93,10 @@ def SubKeyGenerator(key, round_count):
         else:
             new_key_arr[key_idx] = hex(key_arr[key_idx - 2 * round_count])
     return new_key_arr
-    
+
+def xor_operation(a, b):
+    # Perform XOR operation for two hexadecimal values
+    return hex(a ^ b)
 
 # example_state = [
 #     [0xa1, 0xb2, 0xc3, 0xd4],
@@ -101,3 +112,6 @@ def SubKeyGenerator(key, round_count):
 # #     print(row)
 
 # SubKeyGenerator(example_key_hex, 3)
+
+# arr = ["0x63", "0x7c", "0x77", "0x7b", "0xf2"]
+# print(SubBytesSubstitutionArr(arr))
