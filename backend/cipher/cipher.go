@@ -140,7 +140,7 @@ func xorOperation(a, b int) int {
     return a ^ b
 }
 
-func Encrypt(plaintext string) []string {
+func Encrypt(message, key, mode string) string {
     // exampleState := [][]int{
     // 	{0xa1, 0xb2, 0xc3, 0xd4},
     // 	{0xe5, 0xf6, 0x07, 0x18},
@@ -157,7 +157,12 @@ func Encrypt(plaintext string) []string {
 
     // fmt.Println(SubKeyGenerator(exampleKeyHex, 3))
 
-	fmt.Println("Encrypting plaintext", plaintext)
-    arr := []int{0x63, 0x7c, 0x77, 0x7b, 0xf2}
-    return (SubBytesSubstitutionArr(arr))
+	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
+    // arr := []int{0x63, 0x7c, 0x77, 0x7b, 0xf2}
+    return "Encrypted"
+}
+
+func Decrypt(message, key, mode string) string {
+	fmt.Println("Decrypting ciphertext", message, "with key", key, "using mode", mode)
+	return "Decrypted"
 }

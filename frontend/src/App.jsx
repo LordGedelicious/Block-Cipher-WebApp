@@ -5,10 +5,26 @@ function App() {
   // Encrypt
   fetch('http://localhost:8080/encrypt', {
     method: 'POST',
-    body: JSON.stringify({ plaintext: 'Hello, Gopher!' }),
+    body: JSON.stringify({ 
+      message: 'INSERT PLAINTEXT',
+      key: 'INSERT KEY',
+      mode: 'INSERT MODE',
+    }),
   })
     .then((response) => response.json())
-    .then((data) => console.log(data))
+    .then((data) => console.log("Results from encrypt:", data))
+
+  // Decrypt
+  fetch('http://localhost:8080/decrypt', {
+    method: 'POST',
+    body: JSON.stringify({ 
+      message: 'INSERT CIPHERTEXT',
+      key: 'INSERT KEY',
+      mode: 'INSERT MODE',
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => console.log("Results from decrypt:", data))
 
   return (
     <>
