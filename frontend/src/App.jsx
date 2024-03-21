@@ -2,6 +2,12 @@ import gopherLogo from '/logo.png'
 import './App.css'
 
 function App() {
+  // request to backend, allow cors
+  fetch('http://localhost:8080/encrypt', {
+    method: 'GET',
+  })
+    .then((response) => response.json())
+    .then((data) => console.log(data))
 
   return (
     <>
