@@ -20,7 +20,8 @@ func InverseSubBytesSubstitutionArr(arr []int) []string {
 	// Perform Inverse Sub-Bytes Substitution for an array of values
 	result := make([]string, len(arr))
 	for i, val := range arr {
-		result[i] = InverseSubBytesSubstitution(val)
+		// result[i] = InverseSubBytesSubstitution(val)
+		result[i] = fmt.Sprintf("0x%X", InverseSubBytesSubstitution(byte(val)))
 	}
 	return result
 }
@@ -51,8 +52,8 @@ func SubBytesSubstitution(value byte) byte {
 	return sbox[value>>4][value&0x0F]
 }
 
-func InverseSubBytesSubstitution(value int) string {
-	sboxInverse := [][]int{
+func InverseSubBytesSubstitution(value byte) byte {
+	sboxInverse := [][]byte{
 		// 0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F
 		{0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb}, // 0
 		{0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb}, // 1
@@ -71,7 +72,7 @@ func InverseSubBytesSubstitution(value int) string {
 		{0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61}, // E
 		{0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d}, // F
 	}
-	return fmt.Sprintf("0x%X", sboxInverse[value>>4][value&0x0F])
+	return sboxInverse[value>>4][value&0x0F]
 }
 
 func ShiftRows(state [][]int) [][]int {
@@ -170,11 +171,6 @@ func subKeysGenerator(key []byte, numOfRounds int) [][]byte {
 	return keyArr
 }
 
-func xorOperation(a, b int) int {
-	// Perform XOR operation for two hexadecimal values
-	return a ^ b
-}
-
 func formatMessageIntoBlocks(message string) [][]byte {
 	// Convert message and key to hexadecimal array
 	messageHex := []byte(message)
@@ -205,6 +201,58 @@ func formatKeyInto128Bit(key string) []byte {
 	return keyHex[:16]
 }
 
+func oneRoundEncryption(messageBlock, key []byte) []byte {
+	// XOR the round key with the right half of the block
+	for i := 8; i < 16; i++ {
+		messageBlock[i] = messageBlock[i] ^ key[i]
+	}
+
+	// Pass the right half of the block through the S-box
+	for i := 8; i < 16; i++ {
+		messageBlock[i] = SubBytesSubstitution(messageBlock[i])
+	}
+
+	// Pass the right half of the block through the P-box
+
+	// XOR the left half of the block with the right half of the block
+	for i := 0; i < 8; i++ {
+		messageBlock[i] = messageBlock[i] ^ messageBlock[i+8]
+	}
+
+	// Swap the left and right halves of the block
+	for i := 0; i < 8; i++ {
+		messageBlock[i], messageBlock[i+8] = messageBlock[i+8], messageBlock[i]
+	}
+
+	return messageBlock
+}
+
+func oneRoundDecryption(messageBlock, key []byte) []byte {
+	// Swap the left and right halves of the block
+	for i := 0; i < 8; i++ {
+		messageBlock[i], messageBlock[i+8] = messageBlock[i+8], messageBlock[i]
+	}
+
+	// XOR the left half of the block with the right half of the block
+	for i := 0; i < 8; i++ {
+		messageBlock[i] = messageBlock[i] ^ messageBlock[i+8]
+	}
+
+	// Pass the right half of the block through the P-box
+
+	// Pass the right half of the block through the S-box
+	for i := 8; i < 16; i++ {
+		messageBlock[i] = InverseSubBytesSubstitution(messageBlock[i])
+	}
+
+	// XOR the round key with the right half of the block
+	for i := 8; i < 16; i++ {
+		messageBlock[i] = messageBlock[i] ^ key[i]
+	}
+
+	return messageBlock
+}
+
 func Encrypt(message, key, mode string) string {
 	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
 
@@ -220,10 +268,53 @@ func Encrypt(message, key, mode string) string {
 	subkeys := subKeysGenerator(keyHex, 16)
 	fmt.Println("subkeys", subkeys)
 
-	return "Encrypted"
+	// Encrypt each block
+	for _, block := range messageBlocks {
+		for j := 0; j < 16; j++ {
+			block = oneRoundEncryption(block, subkeys[j])
+		}
+	}
+
+	// Combine blocks into a single ciphertext
+	ciphertext := ""
+	for _, block := range messageBlocks {
+		for _, b := range block {
+			ciphertext += fmt.Sprintf("%02X", b)
+		}
+	}
+
+	return ciphertext
 }
 
 func Decrypt(message, key, mode string) string {
 	fmt.Println("Decrypting ciphertext", message, "with key", key, "using mode", mode)
-	return "Decrypted"
+
+	// Split message into blocks
+	messageBlocks := formatMessageIntoBlocks(message)
+	fmt.Println("messageBlocks", messageBlocks)
+
+	// Convert key to hexadecimal array
+	keyHex := formatKeyInto128Bit(key)
+	fmt.Println("keyHex", keyHex)
+
+	// Generate subkeys (16 subkeys for 16 rounds of encryption)
+	subkeys := subKeysGenerator(keyHex, 16)
+	fmt.Println("subkeys", subkeys)
+
+	// Decrypt each block
+	for _, block := range messageBlocks {
+		for j := 15; j >= 0; j-- {
+			block = oneRoundDecryption(block, subkeys[j])
+		}
+	}
+
+	// Combine blocks into a single plaintext
+	plaintext := ""
+	for _, block := range messageBlocks {
+		for _, b := range block {
+			plaintext += fmt.Sprintf("%02X", b)
+		}
+	}
+
+	return plaintext
 }
