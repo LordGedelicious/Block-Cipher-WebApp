@@ -119,15 +119,50 @@ func InverseShiftRows(state [][]int) [][]int {
 	return tempState
 }
 
-func SubKeyGenerator(key []byte, roundCount int) [][]byte {
+func subKeyGenerator(key []byte) []byte {
+	// Generates a key from the original key as seed
+	// Scramble key from ABCDEF to BADCFE
+	newKey := make([]byte, len(key))
+	for i := 0; i < len(key); i += 2 {
+		newKey[i] = key[(i+2)%len(key)]
+		newKey[i+1] = key[i]
+	}
+	// Do left shift 1 bit for even index, 2 bits for odd index, and XOR with next index
+	for i := 0; i < len(key); i++ {
+		if i%2 == 0 {
+			newKey[i] = newKey[i]<<1 ^ newKey[(i+1)%len(key)]
+		} else {
+			newKey[i] = newKey[i]<<2 ^ newKey[(i+1)%len(key)]
+		}
+	}
+
+	return newKey
+}
+
+func subKeysGenerator(key []byte, numOfRounds int) [][]byte {
+	// Converts a 128-bit into an array of subkeys for each round
+	// Create empty array to store subkeys
+	keyArr := make([][]byte, numOfRounds)
+
+	// Generate subkeys for each round with subKeyGenerator function, the previous key becomes the seed for the next one
+	for i := 0; i < numOfRounds; i++ {
+		if i == 0 {
+			keyArr[i] = subKeyGenerator(key)
+		} else {
+			keyArr[i] = subKeyGenerator(keyArr[i-1])
+		}
+	}
+
+	fmt.Println("keyArr", keyArr)
+
 	// Key length is 128 bits, which is 32 hexadecimal digits
 	// To generate 16 different keys, a round key is input key shifted to the right by 2 bits times the roundCount
-	keyArr := make([]byte, len(key)/2)
-	for i := 0; i < len(key); i += 2 {
-		keyArr[i/2] = (key[i])<<4 | (key[i+1])
-	}
-	fmt.Println("keyArr", keyArr)
-	newKeyArr := make([][]byte, roundCount)
+	// keyArr := make([]byte, len(key)/2)
+	// for i := 0; i < len(key); i += 2 {
+	// 	keyArr[i/2] = (key[i])<<4 | (key[i+1])
+	// }
+	// fmt.Println("keyArr", keyArr)
+
 	// for keyIdx := range keyArr {
 	// 	if keyIdx < 2*roundCount {
 	// 		newKeyArr[keyIdx] = keyArr[keyIdx+len(keyArr)-2*roundCount]
@@ -135,7 +170,7 @@ func SubKeyGenerator(key []byte, roundCount int) [][]byte {
 	// 		newKeyArr[keyIdx] = keyArr[keyIdx-2*roundCount]
 	// 	}
 	// }
-	return newKeyArr
+	return keyArr
 }
 
 func xorOperation(a, b int) int {
@@ -184,8 +219,8 @@ func Encrypt(message, key, mode string) string {
 	keyHex := formatKeyInto128Bit(key)
 	fmt.Println("keyHex", keyHex)
 
-	// Generate subkeys (16 buah)
-	subkeys := SubKeyGenerator(keyHex, 16)
+	// Generate subkeys (16 subkeys for 16 rounds of encryption)
+	subkeys := subKeysGenerator(keyHex, 16)
 	fmt.Println("subkeys", subkeys)
 
 	return "Encrypted"

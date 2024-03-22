@@ -17,26 +17,31 @@
 # 6. Repeat steps 4-5 for each block for 16 times
 # 7. Return the ciphertext
 from helper import *
+from cipher import *
 from feistel import FeistelNetwork
 
 def main():
-    mode = input("Choose mode (encrypt/decrypt): ")
-    operation_mode = input("Choose operation mode (ECB/CBC/CFB/OFB/Counter Mode): ")
+    # mode = input("Choose mode (encrypt/decrypt): ")
+    # operation_mode = input("Choose operation mode (ECB/CBC/CFB/OFB/Counter Mode): ")
     key = input("Enter key: ")
     key = spliceKey(key)
-    plaintext = input("Enter plaintext: ")
-    if mode == "encrypt":
-        block_cipher = FeistelNetwork(plaintext, key)
-        ciphertext = block_cipher.encrypt()
-        print(f"Ciphertext: {ciphertext}")
-    elif mode == "decrypt":
-        ciphertext = input("Enter ciphertext: ")
-        block_cipher = FeistelNetwork(ciphertext, key)
-        plaintext = block_cipher.decrypt()
-        print(f"Plaintext: {plaintext}")
-    else:
-        print("Invalid mode")
-        return
+    subkeys = SubKeyGenerator(key, 16)
+    print(f"Subkeys: {subkeys}")
+    for i in range(16):
+        print(f"Round {i+1}: {hex_to_text(subkeys[i])}")
+    # plaintext = input("Enter plaintext: ")
+    # if mode == "encrypt":
+    #     block_cipher = FeistelNetwork(plaintext, key)
+    #     ciphertext = block_cipher.encrypt()
+    #     print(f"Ciphertext: {ciphertext}")
+    # elif mode == "decrypt":
+    #     ciphertext = input("Enter ciphertext: ")
+    #     block_cipher = FeistelNetwork(ciphertext, key)
+    #     plaintext = block_cipher.decrypt()
+    #     print(f"Plaintext: {plaintext}")
+    # else:
+    #     print("Invalid mode")
+    #     return
 
 if __name__ == "__main__":
     main()
