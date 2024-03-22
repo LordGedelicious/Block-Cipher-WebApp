@@ -153,21 +153,6 @@ func subKeysGenerator(key []byte, numOfRounds int) [][]byte {
 
 	fmt.Println("keyArr", keyArr)
 
-	// Key length is 128 bits, which is 32 hexadecimal digits
-	// To generate 16 different keys, a round key is input key shifted to the right by 2 bits times the roundCount
-	// keyArr := make([]byte, len(key)/2)
-	// for i := 0; i < len(key); i += 2 {
-	// 	keyArr[i/2] = (key[i])<<4 | (key[i+1])
-	// }
-	// fmt.Println("keyArr", keyArr)
-
-	// for keyIdx := range keyArr {
-	// 	if keyIdx < 2*roundCount {
-	// 		newKeyArr[keyIdx] = keyArr[keyIdx+len(keyArr)-2*roundCount]
-	// 	} else {
-	// 		newKeyArr[keyIdx] = keyArr[keyIdx-2*roundCount]
-	// 	}
-	// }
 	return keyArr
 }
 
@@ -202,6 +187,8 @@ func formatKeyInto128Bit(key string) []byte {
 }
 
 func oneRoundEncryption(messageBlock, key []byte) []byte {
+	// TODO: IDK WHAT I'M DOING IN THIS ONE, DO CHANGE IT TO A BETTER ALGO
+
 	// XOR the round key with the right half of the block
 	for i := 8; i < 16; i++ {
 		messageBlock[i] = messageBlock[i] ^ key[i]
@@ -228,6 +215,8 @@ func oneRoundEncryption(messageBlock, key []byte) []byte {
 }
 
 func oneRoundDecryption(messageBlock, key []byte) []byte {
+	// TODO: IDK WHAT I'M DOING IN THIS ONE, DO CHANGE IT TO A BETTER ALGO
+
 	// Swap the left and right halves of the block
 	for i := 0; i < 8; i++ {
 		messageBlock[i], messageBlock[i+8] = messageBlock[i+8], messageBlock[i]
@@ -251,6 +240,92 @@ func oneRoundDecryption(messageBlock, key []byte) []byte {
 	}
 
 	return messageBlock
+}
+
+func ecb(message, key, mode string) string {
+	// INPUT:
+	// 	message: plaintext or ciphertext as string
+	// 	key: key for encryption/decryption as string
+	// 	mode: "encrypt" or "decrypt"
+	// OUTPUT:
+	// 	ciphertext or plaintext as string
+
+	// Split message into blocks
+	messageBlocks := formatMessageIntoBlocks(message)
+
+	// Convert key to hexadecimal array
+	keyHex := formatKeyInto128Bit(key)
+
+	// Generate subkeys (16 subkeys for 16 rounds of encryption)
+	subkeys := subKeysGenerator(keyHex, 16)
+
+	// Encrypt/Decrypt each block
+	for _, block := range messageBlocks {
+		for j := 0; j < 16; j++ {
+			if mode == "encrypt" {
+				block = oneRoundEncryption(block, subkeys[j])
+			} else {
+				block = oneRoundDecryption(block, subkeys[j])
+			}
+		}
+	}
+
+	// Combine blocks into a single ciphertext
+	ciphertext := ""
+	for _, block := range messageBlocks {
+		for _, b := range block {
+			ciphertext += fmt.Sprintf("%02X", b)
+		}
+	}
+
+	return ciphertext
+}
+
+func cbc(message, key, mode string) string {
+	// INPUT:
+	// 	message: plaintext or ciphertext as string
+	// 	key: key for encryption/decryption as string
+	// 	mode: "encrypt" or "decrypt"
+	// OUTPUT:
+	// 	ciphertext or plaintext as string
+
+	// Split message into blocks
+	messageBlocks := formatMessageIntoBlocks(message)
+
+	// Convert key to hexadecimal array
+	keyHex := formatKeyInto128Bit(key)
+
+	// Generate subkeys (16 subkeys for 16 rounds of encryption)
+	subkeys := subKeysGenerator(keyHex, 16)
+
+	// Encrypt/Decrypt each block
+	for i := 0; i < len(messageBlocks); i++ {
+		for j := 0; j < 16; j++ {
+			if mode == "encrypt" {
+				if i == 0 {
+					messageBlocks[i] = oneRoundEncryption(messageBlocks[i], subkeys[j])
+				} else {
+					messageBlocks[i] = oneRoundEncryption(messageBlocks[i], messageBlocks[i-1])
+				}
+			} else {
+				if i == 0 {
+					messageBlocks[i] = oneRoundDecryption(messageBlocks[i], subkeys[j])
+				} else {
+					messageBlocks[i] = oneRoundDecryption(messageBlocks[i], messageBlocks[i-1])
+				}
+			}
+		}
+	}
+
+	// Combine blocks into a single ciphertext
+	ciphertext := ""
+	for _, block := range messageBlocks {
+		for _, b := range block {
+			ciphertext += fmt.Sprintf("%02X", b)
+		}
+	}
+
+	return ciphertext
 }
 
 func Encrypt(message, key, mode string) string {
