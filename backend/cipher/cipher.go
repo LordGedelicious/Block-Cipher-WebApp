@@ -6,6 +6,15 @@ import (
 	// "block-cipher-webapp/backend/helper"
 )
 
+func xorOperationBlock(block1, block2 []byte) []byte {
+	// Perform XOR operation between two blocks
+	result := make([]byte, len(block1))
+	for i := 0; i < len(block1); i++ {
+		result[i] = block1[i] ^ block2[i]
+	}
+	return result
+}
+
 func SubBytesSubstitutionArr(arr []int) []string {
 	// Perform Sub-Bytes Substitution for an array of values
 	result := make([]string, len(arr))
@@ -298,21 +307,20 @@ func cbc(message, key, mode string) string {
 	// Generate subkeys (16 subkeys for 16 rounds of encryption)
 	subkeys := subKeysGenerator(keyHex, 16)
 
-	// Encrypt/Decrypt each block
-	for i := 0; i < len(messageBlocks); i++ {
-		for j := 0; j < 16; j++ {
+	// Encrypt/Decrypt each block for 16 loops
+	for i := 0; i < 16; i++ {
+		// Random IV
+		iv := []byte{98, 170, 137, 30, 192, 246, 212, 94, 116, 58, 128, 119, 118, 73, 72, 128}
+		for _, block := range messageBlocks {
 			if mode == "encrypt" {
-				if i == 0 {
-					messageBlocks[i] = oneRoundEncryption(messageBlocks[i], subkeys[j])
-				} else {
-					messageBlocks[i] = oneRoundEncryption(messageBlocks[i], messageBlocks[i-1])
-				}
+				block = xorOperationBlock(block, iv)
+				block = oneRoundEncryption(block, subkeys[i])
+				iv = block
 			} else {
-				if i == 0 {
-					messageBlocks[i] = oneRoundDecryption(messageBlocks[i], subkeys[j])
-				} else {
-					messageBlocks[i] = oneRoundDecryption(messageBlocks[i], messageBlocks[i-1])
-				}
+				curriv := iv
+				iv = block
+				block = oneRoundDecryption(block, subkeys[i])
+				block = xorOperationBlock(block, curriv)
 			}
 		}
 	}
