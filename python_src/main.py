@@ -26,9 +26,9 @@ def main():
     key = input("Enter key: ")
     key = spliceKey(key)
     subkeys = SubKeyGenerator(key, 16)
-    print(f"Subkeys: {subkeys}")
+    print(f"Subkeys:")
     for i in range(16):
-        print(f"Round {i+1}: {hex_to_text(subkeys[i])}")
+        print(f"Round {i+1}: {SubKeyGenerator(key, i)}")
     # plaintext = input("Enter plaintext: ")
     # if mode == "encrypt":
     #     block_cipher = FeistelNetwork(plaintext, key)

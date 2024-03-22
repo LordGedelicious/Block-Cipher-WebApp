@@ -88,10 +88,10 @@ def SubKeyGenerator(key, round_count):
     key_arr = [int(key[i:i+2], 16) for i in range(0, len(key), 2)]
     new_key_arr = [0 for _ in range(len(key_arr))]
     for key_idx in range(len(key_arr)):
-        if key_idx < 2 * round_count:
-            new_key_arr[key_idx] = hex(key_arr[key_idx + len(key_arr) - 2 * round_count])
+        if key_idx < round_count:
+            new_key_arr[key_idx] = hex(key_arr[key_idx + len(key_arr) - round_count])
         else:
-            new_key_arr[key_idx] = hex(key_arr[key_idx - 2 * round_count])
+            new_key_arr[key_idx] = hex(key_arr[key_idx - round_count])
     return new_key_arr
 
 def xor_operation(a, b):
