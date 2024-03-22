@@ -119,21 +119,22 @@ func InverseShiftRows(state [][]int) [][]int {
 	return tempState
 }
 
-func SubKeyGenerator(key string, roundCount int) []string {
+func SubKeyGenerator(key []byte, roundCount int) [][]byte {
 	// Key length is 128 bits, which is 32 hexadecimal digits
 	// To generate 16 different keys, a round key is input key shifted to the right by 2 bits times the roundCount
-	keyArr := make([]int, len(key)/2)
+	keyArr := make([]byte, len(key)/2)
 	for i := 0; i < len(key); i += 2 {
-		keyArr[i/2] = int(key[i])<<4 | int(key[i+1])
+		keyArr[i/2] = (key[i])<<4 | (key[i+1])
 	}
-	newKeyArr := make([]string, len(keyArr))
-	for keyIdx := range keyArr {
-		if keyIdx < 2*roundCount {
-			newKeyArr[keyIdx] = fmt.Sprintf("0x%X", keyArr[keyIdx+len(keyArr)-2*roundCount])
-		} else {
-			newKeyArr[keyIdx] = fmt.Sprintf("0x%X", keyArr[keyIdx-2*roundCount])
-		}
-	}
+	fmt.Println("keyArr", keyArr)
+	newKeyArr := make([][]byte, len(keyArr))
+	// for keyIdx := range keyArr {
+	// 	if keyIdx < 2*roundCount {
+	// 		newKeyArr[keyIdx] = keyArr[keyIdx+len(keyArr)-2*roundCount]
+	// 	} else {
+	// 		newKeyArr[keyIdx] = keyArr[keyIdx-2*roundCount]
+	// 	}
+	// }
 	return newKeyArr
 }
 
@@ -169,6 +170,14 @@ func Encrypt(message, key, mode string) string {
 	// Split message into blocks
 	messageBlocks := formatMessageIntoBlocks(message)
 	fmt.Println("messageBlocks", messageBlocks)
+
+	// Convert key to hexadecimal array
+	keyHex := []byte(key)
+	fmt.Println("keyHex", keyHex)
+
+	// Generate subkeys (16 buah)
+	subkeys := SubKeyGenerator(keyHex, 16)
+	fmt.Println("subkeys", subkeys)
 
 	return "Encrypted"
 }

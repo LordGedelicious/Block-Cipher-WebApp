@@ -16,7 +16,7 @@ function Form() {
         method: 'POST',
         body: JSON.stringify({ 
         message: 'INSERT PLAINTEXT THAT YOU WANT TO ENCRYPT I shall make this long so I can see the blocks.',
-        key: 'INSERT KEY',
+        key: 'dummy key kripto',
         mode: 'INSERT MODE',
         }),
     })
