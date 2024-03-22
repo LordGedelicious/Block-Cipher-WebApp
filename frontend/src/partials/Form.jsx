@@ -15,7 +15,7 @@ function Form() {
     fetch('http://localhost:8080/encrypt', {
         method: 'POST',
         body: JSON.stringify({ 
-        message: 'INSERT PLAINTEXT',
+        message: 'INSERT PLAINTEXT THAT YOU WANT TO ENCRYPT I shall make this long so I can see the blocks.',
         key: 'INSERT KEY',
         mode: 'INSERT MODE',
         }),
@@ -24,16 +24,16 @@ function Form() {
         .then((data) => console.log("Results from encrypt:", data))
 
     // Decrypt
-    fetch('http://localhost:8080/decrypt', {
-        method: 'POST',
-        body: JSON.stringify({ 
-        message: 'INSERT CIPHERTEXT',
-        key: 'INSERT KEY',
-        mode: 'INSERT MODE',
-        }),
-    })
-        .then((response) => response.json())
-        .then((data) => console.log("Results from decrypt:", data))
+    // fetch('http://localhost:8080/decrypt', {
+    //     method: 'POST',
+    //     body: JSON.stringify({ 
+    //     message: 'INSERT CIPHERTEXT',
+    //     key: 'INSERT KEY',
+    //     mode: 'INSERT MODE',
+    //     }),
+    // })
+    //     .then((response) => response.json())
+    //     .then((data) => console.log("Results from decrypt:", data))
 
     const [mode, setMode] = useState('text')
 
