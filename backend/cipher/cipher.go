@@ -127,7 +127,7 @@ func SubKeyGenerator(key []byte, roundCount int) [][]byte {
 		keyArr[i/2] = (key[i])<<4 | (key[i+1])
 	}
 	fmt.Println("keyArr", keyArr)
-	newKeyArr := make([][]byte, len(keyArr))
+	newKeyArr := make([][]byte, roundCount)
 	// for keyIdx := range keyArr {
 	// 	if keyIdx < 2*roundCount {
 	// 		newKeyArr[keyIdx] = keyArr[keyIdx+len(keyArr)-2*roundCount]
@@ -164,6 +164,15 @@ func formatMessageIntoBlocks(message string) [][]byte {
 	return messageBlocks
 }
 
+func formatKeyInto128Bit(key string) []byte {
+	// Only take the first 128 bits of the key. If the key is less than 128 bits, pad it with 0s
+	keyHex := []byte(key)
+	if len(keyHex) < 16 {
+		keyHex = append(keyHex, make([]byte, 16-len(keyHex))...)
+	}
+	return keyHex[:16]
+}
+
 func Encrypt(message, key, mode string) string {
 	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
 
@@ -172,7 +181,7 @@ func Encrypt(message, key, mode string) string {
 	fmt.Println("messageBlocks", messageBlocks)
 
 	// Convert key to hexadecimal array
-	keyHex := []byte(key)
+	keyHex := formatKeyInto128Bit(key)
 	fmt.Println("keyHex", keyHex)
 
 	// Generate subkeys (16 buah)
