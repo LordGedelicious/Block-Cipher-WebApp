@@ -60,7 +60,13 @@ class FeistelNetwork:
             # Combine the left and right half of the block
             # print("Resulting LHS:", self.lhs)
             # print("Resulting RHS:", self.rhs)
-            self.append_result(self.lhs + self.rhs)
+            result = self.lhs + self.rhs
+            print(f"Block idx {block_idx} : {result} [Length: {len(result)}]")
+            for i in range(len(result)):
+                print(f"Idx {i} : {(result[i])}", end= " ")
+            print([hex(result[i]) for i in range(len(result))])
+            print()
+            self.append_result(result)
         return self
     
     def decrypt(self):
@@ -83,5 +89,18 @@ class FeistelNetwork:
         xor_result = xor_operation(rhs_permuted, subkey)
         return xor_result
     
-    def ReverseFeistelFunction(self, lhs, subkey):
-        pass
+    def ReverseFeistelFunction(self, rhs, subkey):
+        # Reverse order:
+        # Encrypt: Ciphertext (RHS) = Plaintext (LHS) XOR {Permutation(Substitution(RHS)) XOR Subkey} 
+        # 1. XOR LHS with subkey
+        # 2. Perform inverse permutation using inverse shift-rows
+        # 3. Perform inverse substitution using inverse S-box
+        # 4. Return the result as LHS
+        rhs_xor = xor_operation(rhs, subkey)
+        # print("RHS XOR:", rhs_xor)
+        padded_rhs_xor = PaddingArray(rhs_xor)
+        rhs_permuted = InverseShiftRows(padded_rhs_xor)
+        # Flattening the array
+        rhs_permuted = [int(rhs_permuted[i][j]) for i in range(len(rhs_permuted)) for j in range(len(rhs_permuted[0]))]
+        rhs_substituted = InverseSubBytesSubstitutionArr(rhs_permuted)
+        return rhs_substituted # As LHS
