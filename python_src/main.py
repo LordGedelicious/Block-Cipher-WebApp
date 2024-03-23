@@ -23,22 +23,24 @@ from feistel import FeistelNetwork
 def main():
     # mode = input("Choose mode (encrypt/decrypt): ")
     # operation_mode = input("Choose operation mode (ECB/CBC/CFB/OFB/Counter Mode): ")
-    key = input("Enter key: ")
+    mode = "encrypt"
+    operation_mode = "ECB"
+    plaintext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    key = "My brother in Christ semoga hari ini kelar tubesnya..."
     key = spliceKey(key)
     subkeys = SubKeyGenerator(key, 16)
     print(f"Subkeys:")
     for i in range(16):
         print(f"Round {i+1}: {SubKeyGenerator(key, i)}")
-    # plaintext = input("Enter plaintext: ")
-    # if mode == "encrypt":
-    #     block_cipher = FeistelNetwork(plaintext, key)
-    #     ciphertext = block_cipher.encrypt()
-    #     print(f"Ciphertext: {ciphertext}")
-    # elif mode == "decrypt":
-    #     ciphertext = input("Enter ciphertext: ")
-    #     block_cipher = FeistelNetwork(ciphertext, key)
-    #     plaintext = block_cipher.decrypt()
-    #     print(f"Plaintext: {plaintext}")
+    if mode == "encrypt":
+        block_cipher = FeistelNetwork(plaintext, key)
+        ciphertext = block_cipher.encrypt().combine_arr_text()
+        print(f"Ciphertext: {ciphertext}")
+    elif mode == "decrypt":
+        ciphertext = input("Enter ciphertext: ")
+        block_cipher = FeistelNetwork(ciphertext, key)
+        plaintext = block_cipher.decrypt()
+        print(f"Plaintext: {plaintext}")
     # else:
     #     print("Invalid mode")
     #     return

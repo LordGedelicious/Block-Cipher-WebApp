@@ -2,11 +2,12 @@
 
 def SubBytesSubstitutionArr(arr):
     # Perform Sub-Bytes Substitution for an array of values
-    return [str(SubBytesSubstitution(val)) for val in arr]
+    print(arr)
+    return [str(SubBytesSubstitution((val))) for val in arr]
 
 def InverseSubBytesSubstitutionArr(arr):
     # Perform Inverse Sub-Bytes Substitution for an array of values
-    return [str(InverseSubBytesSubstitution(val)) for val in arr]
+    return [str(InverseSubBytesSubstitution((val))) for val in arr]
 
 def SubBytesSubstitution(value):
     # Substitusi Baris x Kolom
@@ -30,7 +31,7 @@ def SubBytesSubstitution(value):
         [0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf],  # E
         [0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16]   # F
     ]
-    return hex(sbox[value >> 4][value & 0x0F])
+    return sbox[value >> 4][value & 0x0F]
 
 def InverseSubBytesSubstitution(value):
     sbox_inverse = [
@@ -52,20 +53,22 @@ def InverseSubBytesSubstitution(value):
         [0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61],  # E
         [0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d]   # F
     ]
-    return hex(sbox_inverse[value >> 4][value & 0x0F])
+    return sbox_inverse[value >> 4][value & 0x0F]
 
 def ShiftRows(state):
     # Shift a  matrix, with first row unchanged, second row shifted 1 to the left, third row shifted 2 to the left, and fourth row shifted 3 to the left, etc
     temp_state = [[0 for _ in range(len(state))] for _ in range(len(state[0]))]  # Initialize empty matrix
+    print("State:", state)
+    print("Temp State:", temp_state)
     for i in range(len(state)): # Row
         for j in range(len(state[0])): # Column
             max_shift = len(state) - i
             if j > max_shift - 1:
                 print(f"IF: Filling new table {i}{j} with contents from old table {i}{j-max_shift}")
-                temp_state[i][j] = hex(state[i][j - max_shift])
+                temp_state[i][j] = hex(int(state[i][j - max_shift]))
             else:
                 print(f"ELSE: Filling new table {i}{j} with contents from old table {i}{j+i}")
-                temp_state[i][j] = hex(state[i][j + i])
+                temp_state[i][j] = hex(int(state[i][j + i]))
     return temp_state
 
 def InverseShiftRows(state):
@@ -98,20 +101,6 @@ def xor_operation(a, b):
     # Perform XOR operation for two hexadecimal values
     return hex(a ^ b)
 
-# example_state = [
-#     [0xa1, 0xb2, 0xc3, 0xd4],
-#     [0xe5, 0xf6, 0x07, 0x18],
-#     [0x29, 0x3a, 0x4b, 0x5c],
-#     [0x6d, 0x7e, 0x8f, 0x90]
-# ]
-
-# example_key_hex = "6CAF0AC2B372E1002DFCF20F178C82A2"
-
-# # shifted = InverseShiftRows(example_state)
-# # for row in shifted:
-# #     print(row)
-
-# SubKeyGenerator(example_key_hex, 3)
-
-# arr = ["0x63", "0x7c", "0x77", "0x7b", "0xf2"]
-# print(SubBytesSubstitutionArr(arr))
+# print(SubBytesSubstitutionArr([0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34]))
+print(SubBytesSubstitution(50))
+print(SubBytesSubstitution(0x32))
