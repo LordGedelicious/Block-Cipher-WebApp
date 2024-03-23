@@ -306,11 +306,25 @@ func ofb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// 	mode: "encrypt" or "decrypt"
 	// OUTPUT:
 	// 	ciphertext or plaintext as array of blocks
-	fmt.Println("Starting OFB.")
+	fmt.Println("Starting CFB.")
 
-	// TODO: NotImplemented
+	result := make([][]byte, len(messageBlocks))
 
-	return messageBlocks
+	// This is an 8-bit OFB
+	// Random IV
+	shiftRegister := []byte{62, 52, 12, 66, 21, 82, 112, 173, 92, 216, 252, 222, 2, 82, 11, 97}
+	// TODO: I think this should be better written as a nested loop but at the time of writing, my brain can only work with a single loop
+	for i := 0; i < len(messageBlocks)*len(messageBlocks[0]); i++ {
+		// Encrypt the shift register (with CFB, E = D)
+		output := oneRoundEncryption(shiftRegister, subKeys[0])
+		// Take the leftmost byte of the output
+		leftMostByte := output[0]
+		// First byte of the ciphertext is the XOR of the leftmost byte of the output and the first byte of the plaintext
+		result[i/16] = append(result[i/16], messageBlocks[i/16][i%16]^leftMostByte)
+		// Shift the shift register to the left by 1 bit
+		shiftRegister = append(shiftRegister[1:], output[0])
+	}
+	return result
 }
 
 func cfb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
@@ -342,7 +356,6 @@ func cfb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 			shiftRegister = append(shiftRegister[1:], messageBlocks[i/16][i%16])
 		}
 	}
-	fmt.Println("Result", result)
 
 	return result
 }
@@ -380,7 +393,11 @@ func GoBlockC(message, key, encryptOrDecrypt, mode string) string {
 	} else if mode == "cbc" {
 		result = cbc(messageBlocks, subKeys, encryptOrDecrypt)
 	} else if mode == "ofb" {
+		fmt.Println("message", messageBlocks)
 		result = ofb(messageBlocks, subKeys, encryptOrDecrypt)
+		fmt.Println("result", result)
+		decrypted := ofb(result, subKeys, "decrypt")
+		fmt.Println("decrypted", decrypted)
 	} else if mode == "cfb" {
 		result = cfb(messageBlocks, subKeys, encryptOrDecrypt)
 	} else if mode == "ctr" {
