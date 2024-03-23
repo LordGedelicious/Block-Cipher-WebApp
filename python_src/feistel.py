@@ -17,6 +17,9 @@ class FeistelNetwork:
         # Combine the blocks into a single string
         return ''.join(self.arr_text)
 
+    def printArrText(self):
+        print(self.arr_text)
+
     def encrypt(self):
         # # Loop for 16 times
         # for i in range(16):
@@ -60,7 +63,8 @@ class FeistelNetwork:
         # 3. Perform XOR with the subkey
         # 4. Return the result
         rhs_substituted = SubBytesSubstitutionArr(rhs)
-        print(rhs_substituted)
-        rhs_permuted = ShiftRows(rhs_substituted)
+        print("RHS Substituted:", rhs_substituted)
+        padded_rhs_substituted = PaddingArray(rhs_substituted)
+        rhs_permuted = ShiftRows(padded_rhs_substituted)
         xor_result = xor_operation(rhs_permuted, subkey)
         return xor_result

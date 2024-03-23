@@ -45,5 +45,5 @@ def intarray_to_hexstring(intarray):
     # Convert an array of hexadecimal values to a hexadecimal string
     return ''.join(intarray)
 
-hexstring = "48656c6c6f2c20576f726c6421"
-print(hexstring_to_intarray(hexstring))
+# hexstring = "48656c6c6f2c20576f726c6421"
+# print(hexstring_to_intarray(hexstring))

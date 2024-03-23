@@ -85,6 +85,12 @@ def InverseShiftRows(state):
                 temp_state[i][j] = hex(state[i][j - i])
     return temp_state
 
+def PaddingArray(arr):
+    # Result from S-box substitution is a 8x1 array, convert to 3x3 array by adding 0x00 to the end
+    while len(arr) < 9:
+        arr.append(0x00)
+    return [[arr[i*3 +j] for j in range(3)] for i in range(3)]
+
 def SubKeyGenerator(key, round_count):
     # Key length is 128 bits, which is 32 hexadecimal digits
     # To generate 16 different keys, a round key is input key shifted to the right by 2 bits times the round_count
@@ -102,5 +108,5 @@ def xor_operation(a, b):
     return hex(a ^ b)
 
 # print(SubBytesSubstitutionArr([0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34]))
-print(SubBytesSubstitution(50))
-print(SubBytesSubstitution(0x32))
+# print(SubBytesSubstitution(50))
+# print(SubBytesSubstitution(0x32))

@@ -34,6 +34,7 @@ def main():
         print(f"Round {i+1}: {SubKeyGenerator(key, i)}")
     if mode == "encrypt":
         block_cipher = FeistelNetwork(plaintext, key)
+        block_cipher.printArrText()
         ciphertext = block_cipher.encrypt().combine_arr_text()
         print(f"Ciphertext: {ciphertext}")
     elif mode == "decrypt":
