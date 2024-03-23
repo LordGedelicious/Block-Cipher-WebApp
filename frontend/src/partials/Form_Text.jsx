@@ -13,6 +13,25 @@ function Form_Text() {
     const [mode, setMode] = useState('')
     const [isEncrypt, setBool] = useState(true)
 
+    // Send a POST request to the server to encrypt/decrypt data
+    const fetchBE = async (message, key, encryptOrDecrypt='encrypt', mode='ecb') => {
+        const response = await fetch('http://localhost:8080/goblockc', {
+            method: 'POST',
+            body: JSON.stringify({ 
+            message: message,
+            key: key,
+            encryptOrDecrypt: encryptOrDecrypt,
+            mode: mode,
+            }),
+        })
+        const data = await response.json()
+        if (encryptOrDecrypt === 'encrypt') {
+            setCipher(data)
+        } else {
+            setPlain(data)
+        }
+    }
+
     const handleToggle = (event, newDirection) => {
         if (newDirection !== null) {
             setBool(newDirection === 'true' ? true : false)
@@ -23,23 +42,18 @@ function Form_Text() {
         setMode(event.target.value)
     }
 
-
     const handleSubmit = (event) => {
-        // TODO: Implement real event handling
         event.preventDefault()
-
 
         // TODO: set loading state
         const key = event.target.key.value
 
         if (isEncrypt) {
             const plaintext = event.target.plaintext.value
-            console.log(key, mode, plaintext)
-            setCipher('The quick brown fox jumps over the lazy dog.')
+            fetchBE(plaintext, key, 'encrypt', mode)
         } else {
             const ciphertext = event.target.ciphertext.value
-            console.log(key, mode, ciphertext)
-            setPlain('The quick brown fox jumps over the lazy dog.')
+            fetchBE(ciphertext, key, 'decrypt', mode)
         }
     }
 
@@ -47,7 +61,6 @@ function Form_Text() {
         <Box
             sx={{
                 display: 'flex',
-                // paddingLeft: '2.5rem',
             }}
         >
             <Card
@@ -93,7 +106,7 @@ function Form_Text() {
                             >
                                 <MenuItem value={'ecb'}>ECB</MenuItem>
                                 <MenuItem value={'cbc'}>CBC</MenuItem>
-                                <MenuItem value={'ocb'}>OCB</MenuItem>
+                                <MenuItem value={'ofb'}>OFB</MenuItem>
                                 <MenuItem value={'cfb'}>CFB</MenuItem>
                                 <MenuItem value={'ctr'}>Counter</MenuItem>
                             </Select>
@@ -147,7 +160,6 @@ function Form_Text() {
                             bottom: 0,
                             margin: '1rem',
                         }}
-                        // TODO: onSubmit={} 
                     >
                         <DoubleArrowIcon />
                         &nbsp;Go!
