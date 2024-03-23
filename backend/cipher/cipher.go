@@ -320,10 +320,31 @@ func cfb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// 	mode: "encrypt" or "decrypt"
 	// OUTPUT:
 	// 	ciphertext or plaintext as array of blocks
+	fmt.Println("Starting CFB.")
 
-	// TODO: NotImplemented
+	result := make([][]byte, len(messageBlocks))
 
-	return messageBlocks
+	// This is an 8-bit CFB
+	// Random IV
+	shiftRegister := []byte{12, 214, 112, 31, 45, 61, 83, 72, 115, 221, 75, 53, 251, 79, 27, 183}
+	// TODO: I think this should be better written as a nested loop but at the time of writing, my brain can only work with a single loop
+	for i := 0; i < len(messageBlocks)*len(messageBlocks[0]); i++ {
+		// Encrypt the shift register (with CFB, E = D)
+		output := oneRoundEncryption(shiftRegister, subKeys[0])
+		// Take the leftmost byte of the output
+		leftMostByte := output[0]
+		// First byte of the ciphertext is the XOR of the leftmost byte of the output and the first byte of the plaintext
+		result[i/16] = append(result[i/16], messageBlocks[i/16][i%16]^leftMostByte)
+		// Shift the shift register to the left by 1 bit
+		if mode == "encrypt" {
+			shiftRegister = append(shiftRegister[1:], result[i/16][i%16])
+		} else {
+			shiftRegister = append(shiftRegister[1:], messageBlocks[i/16][i%16])
+		}
+	}
+	fmt.Println("Result", result)
+
+	return result
 }
 
 func counter(messageBlocks, subKeys [][]byte, mode string) [][]byte {
