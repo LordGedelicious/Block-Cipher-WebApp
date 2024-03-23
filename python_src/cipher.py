@@ -56,7 +56,7 @@ def InverseSubBytesSubstitution(value):
 
 def ShiftRows(state):
     # Shift a  matrix, with first row unchanged, second row shifted 1 to the left, third row shifted 2 to the left, and fourth row shifted 3 to the left, etc
-    temp_state = [[0 for _ in range(len(state))] for _ in range(len(state[0]))]  # Initialize empty matrix
+    temp_state = [[0 for _ in range(len(state[0]))] for _ in range(len(state))]  # Initialize empty matrix
     for i in range(len(state)): # Row
         for j in range(len(state[0])): # Column
             max_shift = len(state) - i
@@ -70,7 +70,7 @@ def ShiftRows(state):
 
 def InverseShiftRows(state):
     # Shift a matrix, with first row unchanged, second row shifted 1 to the right, third row shifted 2 to the right, and fourth row shifted 3 to the right, etc
-    temp_state = [[0 for _ in range(len(state))] for _ in range(len(state[0]))]  # Initialize empty matrix
+    temp_state = [[0 for _ in range(len(state[0]))] for _ in range(len(state))]  # Initialize empty matrix
     for i in range(len(state)): # Row
         for j in range(len(state[0])): # Column
             max_shift = len(state) - i
@@ -83,10 +83,8 @@ def InverseShiftRows(state):
     return temp_state
 
 def PaddingArray(arr):
-    # Result from S-box substitution is a 8x1 array, convert to 3x3 array by adding 0x00 to the end
-    while len(arr) < 9:
-        arr.append(0x00)
-    return [[arr[i*3 +j] for j in range(3)] for i in range(3)]
+    # Result from S-box substitution is a 8x1 array, convert to 4x2 array
+    return [[arr[i*3 +j] for j in range(4)] for i in range(2)]
 
 def SubKeyGenerator(key, round_count):
     # Key length is 128 bits, which is 32 hexadecimal digits. We only need 16 digits (8 pairs) for the key schedule

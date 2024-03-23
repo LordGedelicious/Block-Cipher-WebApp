@@ -82,3 +82,6 @@ class FeistelNetwork:
         rhs_permuted = [int(rhs_permuted[i][j]) for i in range(len(rhs_permuted)) for j in range(len(rhs_permuted[0]))]
         xor_result = xor_operation(rhs_permuted, subkey)
         return xor_result
+    
+    def ReverseFeistelFunction(self, lhs, subkey):
+        pass
