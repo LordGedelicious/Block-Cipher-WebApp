@@ -29,14 +29,13 @@ def main():
     key = "My brother in Christ semoga hari ini kelar tubesnya..."
     key = spliceKey(key)
     subkeys = SubKeyGenerator(key, 16)
-    print(f"Subkeys:")
-    for i in range(16):
-        print(f"Round {i+1}: {SubKeyGenerator(key, i)}")
+    # print(f"Subkeys:")
+    # for i in range(16):
+    #     print(f"Round {i+1}: {SubKeyGenerator(key, i)}")
     if mode == "encrypt":
         block_cipher = FeistelNetwork(plaintext, key)
-        block_cipher.printArrText()
-        ciphertext = block_cipher.encrypt().combine_arr_text()
-        print(f"Ciphertext: {ciphertext}")
+        ciphertext = block_cipher.encrypt()
+        print(f"Ciphertext: {block_cipher.combine_arr_text()}")
     elif mode == "decrypt":
         ciphertext = input("Enter ciphertext: ")
         block_cipher = FeistelNetwork(ciphertext, key)

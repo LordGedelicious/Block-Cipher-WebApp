@@ -5,6 +5,7 @@ from helper import *
 class FeistelNetwork:
     def __init__(self, text, key, loop=0):
         self.arr_text = split_into_blocks(text)
+        self.results = [] # To contain the encryption/decryption results
         self.lhs = "" # Left half of the block, string of 16 hexadecimal digits
         self.rhs = "" # Right half of the block, string of 16 hexadecimal digits
         self.key = key # Original key inputted, key generation use loop count
@@ -15,10 +16,19 @@ class FeistelNetwork:
     
     def combine_arr_text(self):
         # Combine the blocks into a single string
-        return ''.join(self.arr_text)
+        final_result = self.results[0]
+        for i in range(1, len(self.results)):
+            final_result += self.results[i]
+        return final_result
 
     def printArrText(self):
         print(self.arr_text)
+    
+    def append_result(self, result):
+        self.results.append(result)
+
+    def showResults(self):
+        print(self.results)
 
     def encrypt(self):
         # # Loop for 16 times
@@ -48,7 +58,9 @@ class FeistelNetwork:
                 self.lhs = new_lhs
                 self.rhs = new_rhs
             # Combine the left and right half of the block
-            self.arr_text[block_idx] = self.lhs + self.rhs
+            # print("Resulting LHS:", self.lhs)
+            # print("Resulting RHS:", self.rhs)
+            self.append_result(self.lhs + self.rhs)
         return self
     
     def decrypt(self):
@@ -63,8 +75,10 @@ class FeistelNetwork:
         # 3. Perform XOR with the subkey
         # 4. Return the result
         rhs_substituted = SubBytesSubstitutionArr(rhs)
-        print("RHS Substituted:", rhs_substituted)
+        # print("RHS Substituted:", rhs_substituted)
         padded_rhs_substituted = PaddingArray(rhs_substituted)
         rhs_permuted = ShiftRows(padded_rhs_substituted)
+        # Flattening the array
+        rhs_permuted = [int(rhs_permuted[i][j]) for i in range(len(rhs_permuted)) for j in range(len(rhs_permuted[0]))]
         xor_result = xor_operation(rhs_permuted, subkey)
         return xor_result

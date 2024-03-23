@@ -2,7 +2,6 @@
 
 def SubBytesSubstitutionArr(arr):
     # Perform Sub-Bytes Substitution for an array of values
-    print(arr)
     return [str(SubBytesSubstitution((val))) for val in arr]
 
 def InverseSubBytesSubstitutionArr(arr):
@@ -58,17 +57,15 @@ def InverseSubBytesSubstitution(value):
 def ShiftRows(state):
     # Shift a  matrix, with first row unchanged, second row shifted 1 to the left, third row shifted 2 to the left, and fourth row shifted 3 to the left, etc
     temp_state = [[0 for _ in range(len(state))] for _ in range(len(state[0]))]  # Initialize empty matrix
-    print("State:", state)
-    print("Temp State:", temp_state)
     for i in range(len(state)): # Row
         for j in range(len(state[0])): # Column
             max_shift = len(state) - i
             if j > max_shift - 1:
-                print(f"IF: Filling new table {i}{j} with contents from old table {i}{j-max_shift}")
-                temp_state[i][j] = hex(int(state[i][j - max_shift]))
+                # print(f"IF: Filling new table {i}{j} with contents from old table {i}{j-max_shift}")
+                temp_state[i][j] = int(state[i][j - max_shift])
             else:
-                print(f"ELSE: Filling new table {i}{j} with contents from old table {i}{j+i}")
-                temp_state[i][j] = hex(int(state[i][j + i]))
+                # print(f"ELSE: Filling new table {i}{j} with contents from old table {i}{j+i}")
+                temp_state[i][j] = int(state[i][j + i])
     return temp_state
 
 def InverseShiftRows(state):
@@ -78,11 +75,11 @@ def InverseShiftRows(state):
         for j in range(len(state[0])): # Column
             max_shift = len(state) - i
             if j < i:
-                print(f"IF: Filling new table {i}{j} with contents from old table {i}{j+max_shift}")
-                temp_state[i][j] = hex(state[i][j + max_shift])
+                # print(f"IF: Filling new table {i}{j} with contents from old table {i}{j+max_shift}")
+                temp_state[i][j] = state[i][j + max_shift]
             else:
-                print(f"ELSE: Filling new table {i}{j} with contents from old table {i}{j-i}")
-                temp_state[i][j] = hex(state[i][j - i])
+                # print(f"ELSE: Filling new table {i}{j} with contents from old table {i}{j-i}")
+                temp_state[i][j] = state[i][j - i]
     return temp_state
 
 def PaddingArray(arr):
@@ -92,21 +89,30 @@ def PaddingArray(arr):
     return [[arr[i*3 +j] for j in range(3)] for i in range(3)]
 
 def SubKeyGenerator(key, round_count):
-    # Key length is 128 bits, which is 32 hexadecimal digits
-    # To generate 16 different keys, a round key is input key shifted to the right by 2 bits times the round_count
+    # Key length is 128 bits, which is 32 hexadecimal digits. We only need 16 digits (8 pairs) for the key schedule
+    # # To generate 16 different keys, a round key is input key shifted to the right by 2 bits times the round_count
+    # key_arr = [int(key[i:i+2], 16) for i in range(0, len(key), 2)]
+    # new_key_arr = [0 for _ in range(len(key_arr))]
+    # for key_idx in range(len(key_arr)):
+    #     if key_idx < round_count:
+    #         new_key_arr[key_idx] = hex(key_arr[key_idx + len(key_arr) - round_count])
+    #     else:
+    #         new_key_arr[key_idx] = hex(key_arr[key_idx - round_count])
+    # return new_key_arr
     key_arr = [int(key[i:i+2], 16) for i in range(0, len(key), 2)]
-    new_key_arr = [0 for _ in range(len(key_arr))]
-    for key_idx in range(len(key_arr)):
-        if key_idx < round_count:
-            new_key_arr[key_idx] = hex(key_arr[key_idx + len(key_arr) - round_count])
-        else:
-            new_key_arr[key_idx] = hex(key_arr[key_idx - round_count])
-    return new_key_arr
+    max_len = 8
+    if round_count + 8 > max_len:
+        return key_arr[round_count:] + key_arr[:round_count - max_len]
+    else:
+        return key_arr[round_count:round_count+8]
+
 
 def xor_operation(a, b):
     # Perform XOR operation for two hexadecimal values
-    return hex(a ^ b)
+    return bytes(x ^ y for x,y in zip(a, b))
 
 # print(SubBytesSubstitutionArr([0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34]))
 # print(SubBytesSubstitution(50))
 # print(SubBytesSubstitution(0x32))
+
+# print("Test XOR operation:", xor_operation([178], [221]))
