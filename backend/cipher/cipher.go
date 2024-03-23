@@ -166,6 +166,7 @@ func subKeysGenerator(key []byte, numOfRounds int) [][]byte {
 }
 
 func formatMessageIntoBlocks(message string) [][]byte {
+	// TODO: handle cases where padding is not needed
 	// Convert message and key to hexadecimal array
 	messageHex := []byte(message)
 
@@ -251,7 +252,7 @@ func oneRoundDecryption(messageBlock, key []byte) []byte {
 	return messageBlock
 }
 
-func ecb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+func ecb(messageBlocks [][]byte, key []byte, mode string) [][]byte {
 	// INPUT:
 	// 	messageBlocks: plaintext or ciphertext as array of blocks
 	// 	keyArr: key for encryption/decryption as array of bytes
@@ -263,16 +264,16 @@ func ecb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// Encrypt/Decrypt each block
 	for i, block := range messageBlocks {
 		if mode == "encrypt" {
-			messageBlocks[i] = oneRoundEncryption(block, subKeys[i%len(subKeys)])
+			messageBlocks[i] = oneRoundEncryption(block, key)
 		} else {
-			messageBlocks[i] = oneRoundDecryption(block, subKeys[i%len(subKeys)])
+			messageBlocks[i] = oneRoundDecryption(block, key)
 		}
 	}
 
 	return messageBlocks
 }
 
-func cbc(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+func cbc(messageBlocks [][]byte, key []byte, mode string) [][]byte {
 	// INPUT:
 	// 	messageBlocks: plaintext or ciphertext as array of blocks
 	// 	keyArr: key for encryption/decryption as array of bytes
@@ -287,10 +288,10 @@ func cbc(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	for i, block := range messageBlocks {
 		if mode == "encrypt" {
 			messageBlocks[i] = xorOperationBlock(block, iv)
-			messageBlocks[i] = oneRoundEncryption(messageBlocks[i], subKeys[i%len(subKeys)])
+			messageBlocks[i] = oneRoundEncryption(messageBlocks[i], key)
 			iv = messageBlocks[i]
 		} else {
-			messageBlocks[i] = oneRoundDecryption(block, subKeys[i%len(subKeys)])
+			messageBlocks[i] = oneRoundDecryption(block, key)
 			messageBlocks[i] = xorOperationBlock(block, iv)
 			iv = block
 		}
@@ -299,7 +300,7 @@ func cbc(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	return messageBlocks
 }
 
-func ofb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+func ofb(messageBlocks [][]byte, key []byte, mode string) [][]byte {
 	// INPUT:
 	// 	messageBlocks: plaintext or ciphertext as array of blocks
 	// 	keyArr: key for encryption/decryption as array of bytes
@@ -316,7 +317,7 @@ func ofb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// TODO: I think this should be better written as a nested loop but at the time of writing, my brain can only work with a single loop
 	for i := 0; i < len(messageBlocks)*len(messageBlocks[0]); i++ {
 		// Encrypt the shift register (with CFB, E = D)
-		output := oneRoundEncryption(shiftRegister, subKeys[0])
+		output := oneRoundEncryption(shiftRegister, key)
 		// Take the leftmost byte of the output
 		leftMostByte := output[0]
 		// First byte of the ciphertext is the XOR of the leftmost byte of the output and the first byte of the plaintext
@@ -327,7 +328,7 @@ func ofb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	return result
 }
 
-func cfb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+func cfb(messageBlocks [][]byte, key []byte, mode string) [][]byte {
 	// INPUT:
 	// 	messageBlocks: plaintext or ciphertext as array of blocks
 	// 	keyArr: key for encryption/decryption as array of bytes
@@ -344,7 +345,7 @@ func cfb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// TODO: I think this should be better written as a nested loop but at the time of writing, my brain can only work with a single loop
 	for i := 0; i < len(messageBlocks)*len(messageBlocks[0]); i++ {
 		// Encrypt the shift register (with CFB, E = D)
-		output := oneRoundEncryption(shiftRegister, subKeys[0])
+		output := oneRoundEncryption(shiftRegister, key)
 		// Take the leftmost byte of the output
 		leftMostByte := output[0]
 		// First byte of the ciphertext is the XOR of the leftmost byte of the output and the first byte of the plaintext
@@ -360,7 +361,7 @@ func cfb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	return result
 }
 
-func counter(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+func counter(messageBlocks [][]byte, key []byte, mode string) [][]byte {
 	// INPUT:
 	// 	messageBlocks: plaintext or ciphertext as array of blocks
 	// 	keyArr: key for encryption/decryption as array of bytes
@@ -383,25 +384,18 @@ func GoBlockC(message, key, encryptOrDecrypt, mode string) string {
 	// Convert key to hexadecimal array
 	keyHex := formatKeyInto128Bit(key)
 
-	// Generate subkeys (16 subkeys for 16 rounds of encryption)
-	subKeys := subKeysGenerator(keyHex, 16)
-
 	result := make([][]byte, len(messageBlocks))
 	// TODO: Change to switch case
 	if mode == "ecb" {
-		result = ecb(messageBlocks, subKeys, encryptOrDecrypt)
+		result = ecb(messageBlocks, keyHex, encryptOrDecrypt)
 	} else if mode == "cbc" {
-		result = cbc(messageBlocks, subKeys, encryptOrDecrypt)
+		result = cbc(messageBlocks, keyHex, encryptOrDecrypt)
 	} else if mode == "ofb" {
-		fmt.Println("message", messageBlocks)
-		result = ofb(messageBlocks, subKeys, encryptOrDecrypt)
-		fmt.Println("result", result)
-		decrypted := ofb(result, subKeys, "decrypt")
-		fmt.Println("decrypted", decrypted)
+		result = ofb(messageBlocks, keyHex, encryptOrDecrypt)
 	} else if mode == "cfb" {
-		result = cfb(messageBlocks, subKeys, encryptOrDecrypt)
+		result = cfb(messageBlocks, keyHex, encryptOrDecrypt)
 	} else if mode == "ctr" {
-		result = counter(messageBlocks, subKeys, encryptOrDecrypt)
+		result = counter(messageBlocks, keyHex, encryptOrDecrypt)
 	}
 
 	fmt.Println("Result: ", result)
