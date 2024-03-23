@@ -9,20 +9,21 @@ import DescriptionIcon from '@mui/icons-material/Description'
 import { useState } from 'react';
 
 function Form() {
-    // Example of how to use fetch to send a POST request to the server
-    // Gw males bikin dokumentasi maap
-    // Encrypt
-    fetch('http://localhost:8080/goblockc', {
-        method: 'POST',
-        body: JSON.stringify({ 
-        message: 'INSERT PLAINTEXT THAT YOU WANT TO ENCRYPT I shall make this long so I can see the blocks.',
-        key: 'dummy key kripto',
-        encryptOrDecrypt: 'encrypt',
-        mode: 'cbc',
-        }),
-    })
-        .then((response) => response.json())
-        .then((data) => console.log("Results from encrypt:", data))
+    // On form submit, send a POST request to the server to encrypt/decrypt data
+    const fetchBE = async (message, key, encryptOrDecrypt='encrypt', mode='ecb') => {
+        const response = await fetch('http://localhost:8080/goblockc', {
+            method: 'POST',
+            body: JSON.stringify({ 
+            message: message,
+            key: key,
+            encryptOrDecrypt: encryptOrDecrypt,
+            mode: mode,
+            }),
+        })
+        const data = await response.json()
+        console.log("Results from encrypt:", data)
+        return data
+    }
 
     const [mode, setMode] = useState('text')
 
@@ -67,8 +68,8 @@ function Form() {
                         </ToggleButton>
                     </ToggleButtonGroup>
                     {mode === 'text'
-                        ? <Form_Text />
-                        : <Form_File />
+                        ? <Form_Text fetchBE={fetchBE} />
+                        : <Form_File fetchBE={fetchBE} />
                     }
                 </Box>
             </Container>
