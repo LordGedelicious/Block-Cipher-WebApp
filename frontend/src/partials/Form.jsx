@@ -12,28 +12,17 @@ function Form() {
     // Example of how to use fetch to send a POST request to the server
     // Gw males bikin dokumentasi maap
     // Encrypt
-    fetch('http://localhost:8080/encrypt', {
+    fetch('http://localhost:8080/goblockc', {
         method: 'POST',
         body: JSON.stringify({ 
         message: 'INSERT PLAINTEXT THAT YOU WANT TO ENCRYPT I shall make this long so I can see the blocks.',
         key: 'dummy key kripto',
-        mode: 'INSERT MODE',
+        encryptOrDecrypt: 'encrypt',
+        mode: 'cbc',
         }),
     })
         .then((response) => response.json())
         .then((data) => console.log("Results from encrypt:", data))
-
-    // Decrypt
-    // fetch('http://localhost:8080/decrypt', {
-    //     method: 'POST',
-    //     body: JSON.stringify({ 
-    //     message: 'INSERT CIPHERTEXT',
-    //     key: 'INSERT KEY',
-    //     mode: 'INSERT MODE',
-    //     }),
-    // })
-    //     .then((response) => response.json())
-    //     .then((data) => console.log("Results from decrypt:", data))
 
     const [mode, setMode] = useState('text')
 

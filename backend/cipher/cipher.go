@@ -8,31 +8,31 @@ import (
 
 func xorOperationBlock(block1, block2 []byte) []byte {
 	// Perform XOR operation between two blocks
-	result := make([]byte, len(block1))
+	messageBlocks := make([]byte, len(block1))
 	for i := 0; i < len(block1); i++ {
-		result[i] = block1[i] ^ block2[i]
+		messageBlocks[i] = block1[i] ^ block2[i]
 	}
-	return result
+	return messageBlocks
 }
 
 func SubBytesSubstitutionArr(arr []int) []string {
 	// Perform Sub-Bytes Substitution for an array of values
-	result := make([]string, len(arr))
+	messageBlocks := make([]string, len(arr))
 	for i, val := range arr {
-		// result[i] = SubBytesSubstitution(val)
-		result[i] = fmt.Sprintf("0x%X", SubBytesSubstitution(byte(val)))
+		// messageBlocks[i] = SubBytesSubstitution(val)
+		messageBlocks[i] = fmt.Sprintf("0x%X", SubBytesSubstitution(byte(val)))
 	}
-	return result
+	return messageBlocks
 }
 
 func InverseSubBytesSubstitutionArr(arr []int) []string {
 	// Perform Inverse Sub-Bytes Substitution for an array of values
-	result := make([]string, len(arr))
+	messageBlocks := make([]string, len(arr))
 	for i, val := range arr {
-		// result[i] = InverseSubBytesSubstitution(val)
-		result[i] = fmt.Sprintf("0x%X", InverseSubBytesSubstitution(byte(val)))
+		// messageBlocks[i] = InverseSubBytesSubstitution(val)
+		messageBlocks[i] = fmt.Sprintf("0x%X", InverseSubBytesSubstitution(byte(val)))
 	}
-	return result
+	return messageBlocks
 }
 
 func SubBytesSubstitution(value byte) byte {
@@ -251,153 +251,127 @@ func oneRoundDecryption(messageBlock, key []byte) []byte {
 	return messageBlock
 }
 
-func ecb(message, key, mode string) string {
+func ecb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// INPUT:
-	// 	message: plaintext or ciphertext as string
-	// 	key: key for encryption/decryption as string
+	// 	messageBlocks: plaintext or ciphertext as array of blocks
+	// 	keyArr: key for encryption/decryption as array of bytes
 	// 	mode: "encrypt" or "decrypt"
 	// OUTPUT:
-	// 	ciphertext or plaintext as string
-
-	// Split message into blocks
-	messageBlocks := formatMessageIntoBlocks(message)
-
-	// Convert key to hexadecimal array
-	keyHex := formatKeyInto128Bit(key)
-
-	// Generate subkeys (16 subkeys for 16 rounds of encryption)
-	subkeys := subKeysGenerator(keyHex, 16)
+	// 	ciphertext or plaintext as array of blocks
+	fmt.Println("Starting ECB.")
 
 	// Encrypt/Decrypt each block
-	for _, block := range messageBlocks {
-		for j := 0; j < 16; j++ {
-			if mode == "encrypt" {
-				block = oneRoundEncryption(block, subkeys[j])
-			} else {
-				block = oneRoundDecryption(block, subkeys[j])
-			}
+	for i, block := range messageBlocks {
+		if mode == "encrypt" {
+			messageBlocks[i] = oneRoundEncryption(block, subKeys[i])
+		} else {
+			messageBlocks[i] = oneRoundDecryption(block, subKeys[i])
 		}
 	}
 
-	// Combine blocks into a single ciphertext
-	ciphertext := ""
-	for _, block := range messageBlocks {
-		for _, b := range block {
-			ciphertext += fmt.Sprintf("%02X", b)
-		}
-	}
-
-	return ciphertext
+	return messageBlocks
 }
 
-func cbc(message, key, mode string) string {
+func cbc(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// INPUT:
-	// 	message: plaintext or ciphertext as string
-	// 	key: key for encryption/decryption as string
+	// 	messageBlocks: plaintext or ciphertext as array of blocks
+	// 	keyArr: key for encryption/decryption as array of bytes
 	// 	mode: "encrypt" or "decrypt"
 	// OUTPUT:
-	// 	ciphertext or plaintext as string
+	// 	ciphertext or plaintext as array of blocks
+	fmt.Println("Starting CBC.")
 
-	// Split message into blocks
-	messageBlocks := formatMessageIntoBlocks(message)
-
-	// Convert key to hexadecimal array
-	keyHex := formatKeyInto128Bit(key)
-
-	// Generate subkeys (16 subkeys for 16 rounds of encryption)
-	subkeys := subKeysGenerator(keyHex, 16)
-
-	// Encrypt/Decrypt each block for 16 loops
-	for i := 0; i < 16; i++ {
-		// Random IV
-		iv := []byte{98, 170, 137, 30, 192, 246, 212, 94, 116, 58, 128, 119, 118, 73, 72, 128}
-		for _, block := range messageBlocks {
-			if mode == "encrypt" {
-				block = xorOperationBlock(block, iv)
-				block = oneRoundEncryption(block, subkeys[i])
-				iv = block
-			} else {
-				curriv := iv
-				iv = block
-				block = oneRoundDecryption(block, subkeys[i])
-				block = xorOperationBlock(block, curriv)
-			}
+	// Encrypt/Decrypt each block
+	// Random IV
+	iv := []byte{98, 170, 137, 30, 192, 246, 212, 94, 116, 58, 128, 119, 118, 73, 72, 128}
+	for j, block := range messageBlocks {
+		if mode == "encrypt" {
+			messageBlocks[j] = xorOperationBlock(block, iv)
+			// messageBlocks[j] = oneRoundEncryption(messageBlocks[j], subkeys[i])
+			iv = messageBlocks[j]
+		} else {
+			// messageBlocks[j] = oneRoundDecryption(block, subkeys[i])
+			messageBlocks[j] = xorOperationBlock(block, iv)
+			iv = block
 		}
 	}
 
-	// Combine blocks into a single ciphertext
-	ciphertext := ""
-	for _, block := range messageBlocks {
-		for _, b := range block {
-			ciphertext += fmt.Sprintf("%02X", b)
-		}
-	}
-
-	return ciphertext
+	return messageBlocks
 }
 
-func Encrypt(message, key, mode string) string {
+func ofb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+	// INPUT:
+	// 	messageBlocks: plaintext or ciphertext as array of blocks
+	// 	keyArr: key for encryption/decryption as array of bytes
+	// 	mode: "encrypt" or "decrypt"
+	// OUTPUT:
+	// 	ciphertext or plaintext as array of blocks
+
+	// TODO: NotImplemented
+
+	return messageBlocks
+}
+
+func cfb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+	// INPUT:
+	// 	messageBlocks: plaintext or ciphertext as array of blocks
+	// 	keyArr: key for encryption/decryption as array of bytes
+	// 	mode: "encrypt" or "decrypt"
+	// OUTPUT:
+	// 	ciphertext or plaintext as array of blocks
+
+	// TODO: NotImplemented
+
+	return messageBlocks
+}
+
+func counter(messageBlocks, subKeys [][]byte, mode string) [][]byte {
+	// INPUT:
+	// 	messageBlocks: plaintext or ciphertext as array of blocks
+	// 	keyArr: key for encryption/decryption as array of bytes
+	// 	mode: "encrypt" or "decrypt"
+	// OUTPUT:
+	// 	ciphertext or plaintext as array of blocks
+
+	// TODO: NotImplemented
+
+	return messageBlocks
+}
+
+// Process encrypt/decrypt (main function)
+func GoBlockC(message, key, encryptOrDecrypt, mode string) string {
 	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
 
 	// Split message into blocks
 	messageBlocks := formatMessageIntoBlocks(message)
-	fmt.Println("messageBlocks", messageBlocks)
 
 	// Convert key to hexadecimal array
 	keyHex := formatKeyInto128Bit(key)
-	fmt.Println("keyHex", keyHex)
 
 	// Generate subkeys (16 subkeys for 16 rounds of encryption)
-	subkeys := subKeysGenerator(keyHex, 16)
-	fmt.Println("subkeys", subkeys)
+	subKeys := subKeysGenerator(keyHex, 16)
 
-	// Encrypt each block
-	for _, block := range messageBlocks {
-		for j := 0; j < 16; j++ {
-			block = oneRoundEncryption(block, subkeys[j])
-		}
+	result := make([][]byte, len(messageBlocks))
+	// TODO: Change to switch case
+	if mode == "ecb" {
+		result = ecb(messageBlocks, subKeys, encryptOrDecrypt)
+	} else if mode == "cbc" {
+		result = cbc(messageBlocks, subKeys, encryptOrDecrypt)
+	} else if mode == "ofb" {
+		result = ofb(messageBlocks, subKeys, encryptOrDecrypt)
+	} else if mode == "cfb" {
+		result = cfb(messageBlocks, subKeys, encryptOrDecrypt)
+	} else if mode == "counter" {
+		result = counter(messageBlocks, subKeys, encryptOrDecrypt)
 	}
 
-	// Combine blocks into a single ciphertext
-	ciphertext := ""
-	for _, block := range messageBlocks {
+	fmt.Println("Result: ", result)
+
+	resultString := ""
+	for _, block := range result {
 		for _, b := range block {
-			ciphertext += fmt.Sprintf("%02X", b)
+			resultString += fmt.Sprintf("%02X", b)
 		}
 	}
-
-	return ciphertext
-}
-
-func Decrypt(message, key, mode string) string {
-	fmt.Println("Decrypting ciphertext", message, "with key", key, "using mode", mode)
-
-	// Split message into blocks
-	messageBlocks := formatMessageIntoBlocks(message)
-	fmt.Println("messageBlocks", messageBlocks)
-
-	// Convert key to hexadecimal array
-	keyHex := formatKeyInto128Bit(key)
-	fmt.Println("keyHex", keyHex)
-
-	// Generate subkeys (16 subkeys for 16 rounds of encryption)
-	subkeys := subKeysGenerator(keyHex, 16)
-	fmt.Println("subkeys", subkeys)
-
-	// Decrypt each block
-	for _, block := range messageBlocks {
-		for j := 15; j >= 0; j-- {
-			block = oneRoundDecryption(block, subkeys[j])
-		}
-	}
-
-	// Combine blocks into a single plaintext
-	plaintext := ""
-	for _, block := range messageBlocks {
-		for _, b := range block {
-			plaintext += fmt.Sprintf("%02X", b)
-		}
-	}
-
-	return plaintext
+	return resultString
 }
