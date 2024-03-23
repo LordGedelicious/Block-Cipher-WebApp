@@ -316,7 +316,7 @@ func ofb(messageBlocks [][]byte, key []byte, mode string) [][]byte {
 	shiftRegister := []byte{62, 52, 12, 66, 21, 82, 112, 173, 92, 216, 252, 222, 2, 82, 11, 97}
 	// TODO: I think this should be better written as a nested loop but at the time of writing, my brain can only work with a single loop
 	for i := 0; i < len(messageBlocks)*len(messageBlocks[0]); i++ {
-		// Encrypt the shift register (with CFB, E = D)
+		// Encrypt the shift register (with OFB, E = D)
 		output := oneRoundEncryption(shiftRegister, key)
 		// Take the leftmost byte of the output
 		leftMostByte := output[0]
@@ -368,8 +368,19 @@ func counter(messageBlocks [][]byte, key []byte, mode string) [][]byte {
 	// 	mode: "encrypt" or "decrypt"
 	// OUTPUT:
 	// 	ciphertext or plaintext as array of blocks
+	fmt.Println("Starting counter.")
 
-	// TODO: NotImplemented
+	// Random IV
+	counter := []byte{65, 23, 8, 11, 71, 115, 72, 163, 18, 82, 94, 217, 85, 37, 78, 245}
+
+	for i := 0; i < len(messageBlocks); i++ {
+		// Encrypt the counter
+		output := oneRoundEncryption(counter, key)
+		// XOR the output with the plaintext
+		messageBlocks[i] = xorOperationBlock(messageBlocks[i], output)
+		// Increment the counter
+		counter[15]++
+	}
 
 	return messageBlocks
 }
