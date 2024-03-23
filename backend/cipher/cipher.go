@@ -263,9 +263,9 @@ func ecb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// Encrypt/Decrypt each block
 	for i, block := range messageBlocks {
 		if mode == "encrypt" {
-			messageBlocks[i] = oneRoundEncryption(block, subKeys[i])
+			messageBlocks[i] = oneRoundEncryption(block, subKeys[i%len(subKeys)])
 		} else {
-			messageBlocks[i] = oneRoundDecryption(block, subKeys[i])
+			messageBlocks[i] = oneRoundDecryption(block, subKeys[i%len(subKeys)])
 		}
 	}
 
@@ -284,14 +284,14 @@ func cbc(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// Encrypt/Decrypt each block
 	// Random IV
 	iv := []byte{98, 170, 137, 30, 192, 246, 212, 94, 116, 58, 128, 119, 118, 73, 72, 128}
-	for j, block := range messageBlocks {
+	for i, block := range messageBlocks {
 		if mode == "encrypt" {
-			messageBlocks[j] = xorOperationBlock(block, iv)
-			// messageBlocks[j] = oneRoundEncryption(messageBlocks[j], subkeys[i])
-			iv = messageBlocks[j]
+			messageBlocks[i] = xorOperationBlock(block, iv)
+			messageBlocks[i] = oneRoundEncryption(messageBlocks[i], subKeys[i%len(subKeys)])
+			iv = messageBlocks[i]
 		} else {
-			// messageBlocks[j] = oneRoundDecryption(block, subkeys[i])
-			messageBlocks[j] = xorOperationBlock(block, iv)
+			messageBlocks[i] = oneRoundDecryption(block, subKeys[i%len(subKeys)])
+			messageBlocks[i] = xorOperationBlock(block, iv)
 			iv = block
 		}
 	}
@@ -306,6 +306,7 @@ func ofb(messageBlocks, subKeys [][]byte, mode string) [][]byte {
 	// 	mode: "encrypt" or "decrypt"
 	// OUTPUT:
 	// 	ciphertext or plaintext as array of blocks
+	fmt.Println("Starting OFB.")
 
 	// TODO: NotImplemented
 
@@ -361,7 +362,7 @@ func GoBlockC(message, key, encryptOrDecrypt, mode string) string {
 		result = ofb(messageBlocks, subKeys, encryptOrDecrypt)
 	} else if mode == "cfb" {
 		result = cfb(messageBlocks, subKeys, encryptOrDecrypt)
-	} else if mode == "counter" {
+	} else if mode == "ctr" {
 		result = counter(messageBlocks, subKeys, encryptOrDecrypt)
 	}
 

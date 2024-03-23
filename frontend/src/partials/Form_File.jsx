@@ -93,7 +93,7 @@ function Form_File() {
                             >
                                 <MenuItem value={'ecb'}>ECB</MenuItem>
                                 <MenuItem value={'cbc'}>CBC</MenuItem>
-                                <MenuItem value={'ocb'}>OCB</MenuItem>
+                                <MenuItem value={'ofb'}>OFB</MenuItem>
                                 <MenuItem value={'cfb'}>CFB</MenuItem>
                                 <MenuItem value={'ctr'}>Counter</MenuItem>
                             </Select>
