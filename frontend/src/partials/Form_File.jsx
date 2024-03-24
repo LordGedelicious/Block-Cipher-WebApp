@@ -69,7 +69,7 @@ function Form_File() {
         const url = window.URL.createObjectURL(blob)
 
         const a = document.createElement('a')
-        a.href = data
+        a.href = url
         a.download = filename + (isEncrypt ? '.enc' : '.dec')
         document.body.appendChild(a)
         a.style.display = 'none'
