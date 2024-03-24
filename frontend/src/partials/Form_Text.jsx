@@ -231,7 +231,7 @@ function Form_Text() {
                         />
                     </Box>
                     <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', paddingLeft: '1rem',paddingRight: '1rem' }}>
-                        <p>Time elapsed: {time}</p>
+                        <p>{time !== '' ? "Time elapsed: " + time : ''}</p>
                         <Button
                             variant='contained'
                             type='submit'
