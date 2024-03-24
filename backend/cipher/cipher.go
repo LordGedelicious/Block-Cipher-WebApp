@@ -429,9 +429,7 @@ func GoBlockC(message, key, mode string, isEncrypt bool) string {
 
 	resultString := ""
 	for _, block := range result {
-		for _, b := range block {
-			resultString += fmt.Sprintf("%02X", b)
-		}
+		resultString += string(block[:])
 	}
 	return resultString
 }
