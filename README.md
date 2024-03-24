@@ -12,7 +12,7 @@ and then run it on Docker Desktop
 NEW:
 Just py main.py in python_src folder. Then insert ciphertext/plaintext, mode of operation, and key.
 
-### TODO
+## TODO
 
 - &#9745; Confusion (untested) & Diffusion (untested)
   - &#9744; Waktu enkripsi dan dekripsi untuk pesan dengan berbagai macam pesan (teks, file)
@@ -50,13 +50,13 @@ Just py main.py in python_src folder. Then insert ciphertext/plaintext, mode of 
     > $ciphertext:$
     > $$C = \overset{l}{\underset{i=0}\doubleplus} f(B_i)^{r}$$
     > $$f(B_i)^{r} = f(f(\dots{f(B_i, 1)}, r-1), r)$$
-    > 
+    >
     > $legend:$ <br>
     > $\bullet \lll \text{, is a rotational left bitwise shift}$ <br>
     > $\bullet \otimes \text {, is the XOR function}$ <br>
     > $\bullet {\doubleplus} \text{, is the aggregated concatenation operator similar to}\sum\text{, inspired by Haskell}$ <br>
     - &#9745; Substitution <br>
-      > 
+      >
       > $subs:$ $$s(B_i) = \overset{j}{\underset{n=0}\doubleplus} sBox(b_n),$$
       > where sBox is a precalculated substitution matrix
     - &#9745; Permutation <br>
@@ -64,8 +64,8 @@ Just py main.py in python_src folder. Then insert ciphertext/plaintext, mode of 
       > $legend$ <br>
   - &#9745; Repeated Cipher, 10 - 16 rounds
 - &#9744; Substitution (Not sure ini ada bedanya ngga sama yg diatas)
-- &#9744; Transposition 
-- &#9744; Modes: 
+- &#9744; Transposition
+- &#9744; Modes:
   - &#9744; ECB
   - &#9744; CBC
   - &#9744; OFB

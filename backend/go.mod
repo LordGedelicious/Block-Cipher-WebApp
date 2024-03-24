@@ -1,3 +1,3 @@
 module block-cipher-webapp/backend
 
-go 1.20
+go 1.22
