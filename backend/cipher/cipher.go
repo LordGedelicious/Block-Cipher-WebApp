@@ -221,22 +221,25 @@ func counter(messageBlocks [][]byte, key []byte, isEncrypt bool) [][]byte {
 }
 
 // Process encrypt/decrypt (main function)
-func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration) {
+func GoBlockC(message, key, mode string, isEncrypt, isFile bool) (string, time.Duration) {
 	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
+	fmt.Println(message)
 
 	// Split message into blocks
 	var messageHex []byte
-	if isEncrypt {
+	if isEncrypt && !isFile {
 		messageHex = []byte(message)
 	} else {
 		messageHex, _ = hex.DecodeString(message)
 	}
 
+	// fmt.Println("Message hex: ", messageHex)
+
 	if (mode == "ecb" || mode == "cbc") && len(messageHex)%16 != 0 {
 		messageHex = addPadding(messageHex)
 	}
 	messageBlocks := formatMessageIntoBlocks(messageHex)
-	fmt.Println("Message blocks: ", messageBlocks)
+	// fmt.Println("Message blocks: ", messageBlocks)
 
 	// Convert key to hexadecimal array
 	keyHex := formatKeyInto128Bit(key)
@@ -256,7 +259,7 @@ func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration)
 		result = counter(messageBlocks, keyHex, isEncrypt)
 	}
 
-	fmt.Println("Result: ", result)
+	// fmt.Println("Result: ", result)
 
 	resultString := ""
 	for _, block := range result {
@@ -268,7 +271,7 @@ func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration)
 	}
 
 	elapsed := time.Since(start)
-	fmt.Println("Time elapsed: ", elapsed)
+	// fmt.Println("Time elapsed: ", elapsed)
 
 	return resultString, elapsed
 }

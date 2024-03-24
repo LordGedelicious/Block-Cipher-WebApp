@@ -31,6 +31,7 @@ function Form_Text() {
                 key: key,
                 isEncrypt: isEncrypt,
                 mode: mode,
+                isFile: false,
             }),
         })
         const data = await response.json()
