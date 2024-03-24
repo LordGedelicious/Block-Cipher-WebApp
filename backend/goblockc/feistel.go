@@ -22,13 +22,18 @@ func Feistel(right uint64, key uint64, forward bool) (uint64, error) {
 			return 0, err
 		}
 
-		return substitutedRight ^ key, nil
+		permutedRight := Permute(substitutedRight, forward)
+
+		return permutedRight ^ key, nil
 	} else {
+
 		unXORedRight := right ^ key
+
+		unpermutedRight := Permute(unXORedRight, forward)
 
 		invsbox := utils.GetInvSBox()
 		bytes := make([]byte, 8)
-		binary.BigEndian.PutUint64(bytes, unXORedRight)
+		binary.BigEndian.PutUint64(bytes, unpermutedRight)
 
 		for i := range 8 {
 			bytes[i] = invsbox[bytes[i]]
@@ -39,44 +44,20 @@ func Feistel(right uint64, key uint64, forward bool) (uint64, error) {
 			return 0, err
 		}
 
+
 		return unsubstitutedRight, nil
 	}
 }
 
-func Permute(left uint64, right uint64, forward bool) (uint64, uint64) {
-	if forward {
-		leftBytes := make([]byte, 8)
-		rightBytes := make([]byte, 8)
-		binary.BigEndian.PutUint64(leftBytes, left)
-		binary.BigEndian.PutUint64(rightBytes, right)
+func Permute(right uint64, forward bool) uint64 {
+	rightBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(rightBytes, right)
 
-		leftBytesOne := make([]byte, 4)
-		copy(leftBytesOne, leftBytes[:4])
-		leftBytesTwo := make([]byte, 4)
-		copy(leftBytesTwo, leftBytes[4:])
-		rightBytesOne := make([]byte, 4)
-		copy(rightBytesOne, rightBytes[:4])
-		rightBytesTwo := make([]byte, 4)
-		copy(rightBytesTwo, rightBytes[4:])
+	rightBytesOne := make([]byte, 4)
+	copy(rightBytesOne, rightBytes[:4])
+	rightBytesTwo := make([]byte, 4)
+	copy(rightBytesTwo, rightBytes[4:])
 
-		result := slices.Concat(leftBytesOne, utils.Rotate(leftBytesTwo, 1, forward), utils.Rotate(rightBytesOne, 2, forward), utils.Rotate(rightBytesTwo, 3, forward))
-		return binary.BigEndian.Uint64(result[:8]), binary.BigEndian.Uint64(result[8:])
-	} else {
-		leftBytes := make([]byte, 8)
-		rightBytes := make([]byte, 8)
-		binary.BigEndian.PutUint64(leftBytes, left)
-		binary.BigEndian.PutUint64(rightBytes, right)
-
-		leftBytesOne := make([]byte, 4)
-		copy(leftBytesOne, leftBytes[:4])
-		leftBytesTwo := make([]byte, 4)
-		copy(leftBytesTwo, leftBytes[4:])
-		rightBytesOne := make([]byte, 4)
-		copy(rightBytesOne, rightBytes[:4])
-		rightBytesTwo := make([]byte, 4)
-		copy(rightBytesTwo, rightBytes[4:])
-
-		result := slices.Concat(leftBytesOne, utils.Rotate(leftBytesTwo, 1, forward), utils.Rotate(rightBytesOne, 2, forward), utils.Rotate(rightBytesTwo, 3, forward))
-		return binary.BigEndian.Uint64(result[:8]), binary.BigEndian.Uint64(result[8:])
-	}
+	result := slices.Concat(rightBytesOne, utils.Rotate(rightBytesTwo, 1, forward))
+	return binary.BigEndian.Uint64(result)
 }

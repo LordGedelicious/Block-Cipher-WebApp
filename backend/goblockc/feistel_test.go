@@ -48,32 +48,19 @@ func TestFeistelInvertibility2(t *testing.T) {
 }
 
 func TestPermute(t *testing.T) {
-	left, right := Permute(0x0102030405060708, 0x090A0B0C0D0E0F10, true)
+	left := Permute(0x0102030405060708, true)
 
 	if left != 0x0102030406070805 {
 		t.Error("Left is not correct")
 		t.Log(left)
 	}
-
-	if right != 0x0B0C090A100D0E0F {
-		t.Error("Right is not correct")
-		t.Log(0x0B0C090A100D0E0F)
-		t.Log(right)
-	}
 }
 
 func TestPermuteInvertibility(t *testing.T) {
-	left, right := Permute(0x0102030405060708, 0x090A0B0C0D0E0F10, true)
-	t.Logf("%016x %016x", left, right)
-	newleft, newright := Permute(left, right, false)
+	right := Permute(0x0102030405060708, false)
+	left := Permute(right, true)
 
-	if newleft != 0x0102030405060708 {
+	if left != 0x0102030405060708 {
 		t.Error("Left is not correct")
-		t.Logf("%016x", newleft)
-	}
-
-	if newright != 0x090A0B0C0D0E0F10 {
-		t.Error("Right is not correct")
-		t.Logf("%016x", newright)
 	}
 }
