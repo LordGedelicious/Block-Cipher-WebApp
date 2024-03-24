@@ -29,7 +29,7 @@ import (
 	"block-cipher-webapp/backend/utils"
 )
 
-func parse(block []byte, key []byte, isEncrypt bool) ([]byte, error) {
+func Parse(block []byte, key []byte, isEncrypt bool) ([]byte, error) {
 	if len(block) != 16 {
 		return nil, errors.New("block must be 16 bytes long")
 	}

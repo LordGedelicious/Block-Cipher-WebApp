@@ -27,11 +27,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	var message = reqBody["message"].(string)
 	var key = reqBody["key"].(string)
-	var encryptOrDecrypt = reqBody["encryptOrDecrypt"].(string)
+	var isEncrypt = reqBody["isEncrypt"].(bool)
 	var mode = reqBody["mode"].(string)
 
 	// Process the message (encrypt or decrypt)
-	result := cipher.GoBlockC(message, key, encryptOrDecrypt, mode)
+	result := cipher.GoBlockC(message, key, mode, isEncrypt)
 	fmt.Println(result)
 
 	js, err := json.Marshal(result)

@@ -14,18 +14,18 @@ function Form_Text() {
     const [isEncrypt, setBool] = useState(true)
 
     // Send a POST request to the server to encrypt/decrypt data
-    const fetchBE = async (message, key, encryptOrDecrypt='encrypt', mode='ecb') => {
+    const fetchBE = async (message, key, isEncrypt=true, mode='ecb') => {
         const response = await fetch('http://localhost:8080/goblockc', {
             method: 'POST',
             body: JSON.stringify({ 
             message: message,
             key: key,
-            encryptOrDecrypt: encryptOrDecrypt,
+            isEncrypt: isEncrypt,
             mode: mode,
             }),
         })
         const data = await response.json()
-        if (encryptOrDecrypt === 'encrypt') {
+        if (isEncrypt) {
             setCipher(data)
         } else {
             setPlain(data)
@@ -48,13 +48,14 @@ function Form_Text() {
         // TODO: set loading state
         const key = event.target.key.value
 
+        var message
         if (isEncrypt) {
-            const plaintext = event.target.plaintext.value
-            fetchBE(plaintext, key, 'encrypt', mode)
+            message = event.target.plaintext.value
         } else {
-            const ciphertext = event.target.ciphertext.value
-            fetchBE(ciphertext, key, 'decrypt', mode)
+            message = event.target.ciphertext.value
         }
+
+        fetchBE(message, key, isEncrypt, mode)
     }
 
     return (
