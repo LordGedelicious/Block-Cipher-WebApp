@@ -30,13 +30,13 @@ func TestParse(t *testing.T) {
 	plaintext := []byte("abcdefghijklmnopqrstuvwxyz")
 	key := []byte("abcdefghijklmnopqrstuvwxyz")
 
-	ciphertext, err := parse(plaintext[:16], key[:16], true)
+	ciphertext, err := Parse(plaintext[:16], key[:16], true)
 
 	if err != nil {
 		t.Error("Unexpected error")
 	}
 
-	decrypted, err := parse(ciphertext, key[:16], false)
+	decrypted, err := Parse(ciphertext, key[:16], false)
 
 	if err != nil {
 		t.Error("Unexpected error")
