@@ -60,14 +60,14 @@ function Form_File() {
         console.log("Result", data.result);
         setPreview(data.result.substring(0, 1024) + (data.result.length > 1024 ? ' .. .. ..' : ''))
         setTime(data.timeElapsed)
-        var bytes = new Uint8Array(Math.ceil(data.result / 2));
-        for (var i = 0; i < bytes.length; i++) {
-            bytes[i] = parseInt(data.result.substr(i * 2, i * 2 + 2), 16);
-        }
-        console.log(bytes);
-        var blob = new Blob(bytes, { type: 'application/octet-stream' })
-        
-        const url = window.URL.createObjectURL(blob)
+        // Convert hexadecimal string to byte array
+        const byteArray = data.result.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
+
+        // Create a Blob from the byte array
+        const blob = new Blob([new Uint8Array(byteArray)]);
+
+        // Create a URL representing the file
+        const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a')
         a.href = url
