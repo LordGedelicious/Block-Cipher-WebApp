@@ -50,7 +50,6 @@ func addPadding(messageHex []byte) []byte {
 
 func formatMessageIntoBlocks(messageHex []byte) [][]byte {
 	// Split the message into 16-byte (128-bit) blocks (spek)
-	fmt.Println("Message hex AAAAAAAAA: ", messageHex)
 	messageBlocks := make([][]byte, int(math.Ceil(float64(len(messageHex))/16)))
 	for i := 0; i < len(messageHex); i += 16 {
 		if i+16 > len(messageHex) {
@@ -59,13 +58,12 @@ func formatMessageIntoBlocks(messageHex []byte) [][]byte {
 			messageBlocks[i/16] = messageHex[i : i+16]
 		}
 	}
-	fmt.Println("Message blocks AAAAAA: ", messageBlocks)
 	return messageBlocks
 }
 
 func formatKeyInto128Bit(key string) []byte {
 	// Only take the first 128 bits of the key. If the key is less than 128 bits, pad it with 0s
-	keyHex := []byte(key)
+	keyHex, _ := hex.DecodeString(key)
 	if len(keyHex) < 16 {
 		keyHex = append(keyHex, make([]byte, 16-len(keyHex))...)
 	}
@@ -232,7 +230,6 @@ func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration)
 		messageHex = []byte(message)
 	} else {
 		messageHex, _ = hex.DecodeString(message)
-		fmt.Println("Message hex: ", messageHex)
 	}
 
 	if (mode == "ecb" || mode == "cbc") && len(messageHex)%16 != 0 {
