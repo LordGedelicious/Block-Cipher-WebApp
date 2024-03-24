@@ -36,10 +36,7 @@ func HexToText(hexString string) string {
 	return text
 }
 
-func formatMessageIntoBlocks(messageHex []byte) [][]byte {
-	// TODO: handle cases where padding is not needed
-	// Convert message and key to hexadecimal array
-
+func addPadding(messageHex []byte) []byte {
 	// Add padding of nulls to message so it can be divided to 16-byte (128-bit) blocks
 	var num_of_padding int
 	if len(messageHex)%16 != 0 {
@@ -48,15 +45,21 @@ func formatMessageIntoBlocks(messageHex []byte) [][]byte {
 	for i := 0; i < num_of_padding; i++ {
 		messageHex = append(messageHex, 0)
 	}
+	return messageHex
+}
 
+func formatMessageIntoBlocks(messageHex []byte) [][]byte {
 	// Split the message into 16-byte (128-bit) blocks (spek)
+	fmt.Println("Message hex AAAAAAAAA: ", messageHex)
 	messageBlocks := make([][]byte, int(math.Ceil(float64(len(messageHex))/16)))
 	for i := 0; i < len(messageHex); i += 16 {
-		messageBlocks[i/16] = make([]byte, 16)
-		for j := 0; j < 16; j++ {
-			messageBlocks[i/16][j] = messageHex[i+j]
+		if i+16 > len(messageHex) {
+			messageBlocks[i/16] = messageHex[i : i+len(messageHex)%16]
+		} else {
+			messageBlocks[i/16] = messageHex[i : i+16]
 		}
 	}
+	fmt.Println("Message blocks AAAAAA: ", messageBlocks)
 	return messageBlocks
 }
 
@@ -229,6 +232,10 @@ func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration)
 	} else {
 		messageHex, _ = hex.DecodeString(message)
 		fmt.Println("Message hex: ", messageHex)
+	}
+
+	if (mode == "ecb" || mode == "cbc") && len(messageHex)%16 != 0 {
+		messageHex = addPadding(messageHex)
 	}
 	messageBlocks := formatMessageIntoBlocks(messageHex)
 	fmt.Println("Message blocks: ", messageBlocks)
