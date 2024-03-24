@@ -11,6 +11,7 @@ import { useState } from 'react'
 
 function Form_File() {
     const [preview, setPreview] = useState('')
+    const [initial, setInitial] = useState('')
     const [result, setResult] = useState('')
     const [filename, setFilename] = useState('')
     const [time, setTime] = useState('')
@@ -34,7 +35,8 @@ function Form_File() {
         reader.onload = (event) => {
             var res = [...new Uint8Array(event.target.result)]
                 .map(x => x.toString(16).padStart(2, '0'));
-            setResult(res.join(''))
+            setInitial(res.join(''));
+            setResult('');
             setPreview(res.slice(0, 1024).join(' ') + (res.length > 1024 ? ' .. .. ..' : ''))
             setFilename(file.name)
         }
@@ -42,7 +44,7 @@ function Form_File() {
     }
 
     // Send a POST request to the server to encrypt/decrypt data
-    const fetchBE = async (message, key, isHex=false, isEncrypt=true, mode='ecb') => {
+    const fetchBE = async (message, key, isHex = false, isEncrypt = true, mode = 'ecb') => {
         const response = await fetch('http://localhost:8080/goblockc', {
             method: 'POST',
             body: JSON.stringify({ 
@@ -56,29 +58,31 @@ function Form_File() {
         })
         const data = await response.json()
 
-        setResult(data.result)
-        console.log("Result", data.result);
-        setPreview(data.result.substring(0, 1024) + (data.result.length > 1024 ? ' .. .. ..' : ''))
+        setResult(data.result);
+        var preview = ''
+        for (var i = 0; i < Math.min(data.result.length, 1024); i += 2) {
+            preview += data.result.slice(i, i + 2) + ' '
+        }
+        preview += (data.result.length > 1024 ? '.. .. ..' : '')
+        setPreview(preview);
         setTime(data.timeElapsed)
         // Convert hexadecimal string to byte array
         const byteArray = data.result.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
 
         // Create a Blob from the byte array
-        const blob = new Blob([new Uint8Array(byteArray)]);
+        const blob = new Blob([new Uint8Array(byteArray), { type: 'application/octet-stream' }]);
 
         // Create a URL representing the file
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a')
         a.href = url
-        a.download = filename + (isEncrypt ? '.enc' : '.dec')
+        a.download = filename
         document.body.appendChild(a)
         a.style.display = 'none'
         a.click()
         a.remove()
-        setTimeout(() => {
-            window.URL.revokeObjectURL(url)
-        }, 1000);
+        window.URL.revokeObjectURL(url)
     }
 
     const handleToggle = (event, newDirection) => {
@@ -96,7 +100,24 @@ function Form_File() {
         event.preventDefault()
 
         // TODO: set loading state
+        if (result !== '') {
+            var bytes = new Uint8Array(Math.ceil(result.length / 2));
+            for (var i = 0; i < bytes.length; i++) {
+                bytes[i] = parseInt(result.substr(i * 2, i * 2 + 2), 16);
+            }
+            var blob = new Blob(bytes, { type: 'application/octet-stream' })
+            
+            const url = window.URL.createObjectURL(blob)
 
+            const a = document.createElement('a')
+            a.href = url
+            a.download = filename + (isEncrypt ? '.enc' : '.dec')
+            document.body.appendChild(a)
+            a.style.display = 'none'
+            a.click()
+            a.remove()
+            window.URL.revokeObjectURL(url)
+        }
         const key = event.target.key.value
         var valid = key.toLowerCase().split('').every(c => '0123456789abcdef'.indexOf(c) !== -1);
         if (!valid) {
@@ -105,7 +126,7 @@ function Form_File() {
             return
         }
 
-        var message = result
+        var message = initial;
         fetchBE(message, key, true, isEncrypt, mode)
     }
 
