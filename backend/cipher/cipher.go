@@ -2,8 +2,10 @@ package cipher
 
 import (
 	"block-cipher-webapp/backend/goblockc"
+	"encoding/hex"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 )
 
@@ -16,13 +18,33 @@ func xorOperationBlock(block1, block2 []byte) []byte {
 	return messageBlocks
 }
 
-func formatMessageIntoBlocks(message string) [][]byte {
+func TextToHex(text string) string {
+	hexString := ""
+	for _, c := range text {
+		hexString += string(hex.EncodeToString([]byte(string(c))))
+	}
+	return hexString
+}
+
+func HexToText(hexString string) string {
+	text := ""
+	hexString = strings.ReplaceAll(hexString, " ", "")
+	for i := 0; i < len(hexString); i += 2 {
+		hexByte, _ := hex.DecodeString(hexString[i : i+2])
+		text += string(hexByte)
+	}
+	return text
+}
+
+func formatMessageIntoBlocks(messageHex []byte) [][]byte {
 	// TODO: handle cases where padding is not needed
 	// Convert message and key to hexadecimal array
-	messageHex := []byte(message)
 
 	// Add padding of nulls to message so it can be divided to 16-byte (128-bit) blocks
-	num_of_padding := 16 - len(messageHex)%16
+	var num_of_padding int
+	if len(messageHex)%16 != 0 {
+		num_of_padding = 16 - len(messageHex)%16
+	}
 	for i := 0; i < num_of_padding; i++ {
 		messageHex = append(messageHex, 0)
 	}
@@ -199,14 +221,22 @@ func counter(messageBlocks [][]byte, key []byte, isEncrypt bool) [][]byte {
 // Process encrypt/decrypt (main function)
 func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration) {
 	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
-	start := time.Now()
 
 	// Split message into blocks
-	messageBlocks := formatMessageIntoBlocks(message)
+	var messageHex []byte
+	if isEncrypt {
+		messageHex = []byte(message)
+	} else {
+		messageHex, _ = hex.DecodeString(message)
+		fmt.Println("Message hex: ", messageHex)
+	}
+	messageBlocks := formatMessageIntoBlocks(messageHex)
+	fmt.Println("Message blocks: ", messageBlocks)
 
 	// Convert key to hexadecimal array
 	keyHex := formatKeyInto128Bit(key)
 
+	start := time.Now()
 	result := make([][]byte, len(messageBlocks))
 	// TODO: Change to switch case
 	if mode == "ecb" {
@@ -225,7 +255,11 @@ func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration)
 
 	resultString := ""
 	for _, block := range result {
-		resultString += string(block[:])
+		if isEncrypt {
+			resultString += string(hex.EncodeToString(block[:]))
+		} else {
+			resultString += string(block[:])
+		}
 	}
 
 	elapsed := time.Since(start)
