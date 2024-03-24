@@ -1,5 +1,7 @@
 package helper
 
+// TODO: check if this is used. I don't think it is and it can be removed.
+
 import (
 	"encoding/hex"
 	"strings"

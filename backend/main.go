@@ -33,7 +33,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// Process the message (encrypt or decrypt)
 	result, timeElapsed := cipher.GoBlockC(message, key, mode, isEncrypt, isFile)
-	// fmt.Println(result, timeElapsed.String())
+	fmt.Println(result, timeElapsed.String())
 
 	response := map[string]interface{}{
 		"result":      result,

@@ -57,8 +57,8 @@ function Form_File() {
         const data = await response.json()
 
         setResult(data.result)
-        console.log(data.result);
-        setPreview(data.result.slice(0, 1024).join(' ') + (res.length > 1024 ? ' .. .. ..' : ''))
+        console.log("Result", data.result);
+        setPreview(data.result.substring(0, 1024) + (data.result.length > 1024 ? ' .. .. ..' : ''))
         setTime(data.timeElapsed)
         var bytes = new Uint8Array(Math.ceil(data.result / 2));
         for (var i = 0; i < bytes.length; i++) {
