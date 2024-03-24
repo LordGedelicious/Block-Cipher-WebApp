@@ -116,7 +116,7 @@ func cbc(messageBlocks [][]byte, key []byte, isEncrypt bool) [][]byte {
 			if error != nil {
 				fmt.Println("Error in CBC.")
 			}
-			messageBlocks[i] = xorOperationBlock(block, iv)
+			messageBlocks[i] = xorOperationBlock(messageBlocks[i], iv)
 			iv = block
 		}
 	}
