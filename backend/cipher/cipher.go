@@ -263,7 +263,7 @@ func GoBlockC(message, key, mode string, isEncrypt, isFile bool) (string, time.D
 
 	resultString := ""
 	for _, block := range result {
-		if isEncrypt {
+		if isEncrypt || isFile {
 			resultString += string(hex.EncodeToString(block[:]))
 		} else {
 			resultString += string(block[:])
