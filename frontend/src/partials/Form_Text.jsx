@@ -10,6 +10,7 @@ import { useState } from 'react'
 function Form_Text() {
     const [plain, setPlain] = useState('')
     const [cipher, setCipher] = useState('')
+    const [time, setTime] = useState('')
     const [mode, setMode] = useState('')
     const [isEncrypt, setBool] = useState(true)
 
@@ -25,11 +26,13 @@ function Form_Text() {
             }),
         })
         const data = await response.json()
+
         if (isEncrypt) {
-            setCipher(data)
+            setCipher(data.result)
         } else {
-            setPlain(data)
+            setPlain(data.result)
         }
+        setTime(data.timeElapsed)
     }
 
     const handleToggle = (event, newDirection) => {
@@ -120,7 +123,7 @@ function Form_Text() {
                             display: 'flex',
                             width: '100%',
                             justifyContent: 'space-between',
-                            marginBottom: '4rem'
+                            marginBottom: '2rem'
                         }}
                     >
                         <TextField
@@ -152,19 +155,16 @@ function Form_Text() {
                             }}
                         />
                     </Box>
-                    <Button
-                        variant='contained'
-                        type='submit'
-                        sx={{
-                            position: 'absolute',
-                            right: 0,
-                            bottom: 0,
-                            margin: '1rem',
-                        }}
-                    >
-                        <DoubleArrowIcon />
-                        &nbsp;Go!
-                    </Button>
+                    <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', paddingLeft: '1rem',paddingRight: '1rem' }}>
+                        <p>Time elapsed: {time}</p>
+                        <Button
+                            variant='contained'
+                            type='submit'
+                        >
+                            <DoubleArrowIcon />
+                            &nbsp;Go!
+                        </Button>
+                    </div>
                 </form>
             </Card>
             <ToggleButtonGroup

@@ -4,6 +4,7 @@ import (
 	"block-cipher-webapp/backend/goblockc"
 	"fmt"
 	"math"
+	"time"
 )
 
 func xorOperationBlock(block1, block2 []byte) []byte {
@@ -402,8 +403,9 @@ func counter(messageBlocks [][]byte, key []byte, isEncrypt bool) [][]byte {
 }
 
 // Process encrypt/decrypt (main function)
-func GoBlockC(message, key, mode string, isEncrypt bool) string {
+func GoBlockC(message, key, mode string, isEncrypt bool) (string, time.Duration) {
 	fmt.Println("Encrypting plaintext", message, "with key", key, "using mode", mode)
+	start := time.Now()
 
 	// Split message into blocks
 	messageBlocks := formatMessageIntoBlocks(message)
@@ -431,5 +433,9 @@ func GoBlockC(message, key, mode string, isEncrypt bool) string {
 	for _, block := range result {
 		resultString += string(block[:])
 	}
-	return resultString
+
+	elapsed := time.Since(start)
+	fmt.Println("Time elapsed: ", elapsed)
+
+	return resultString, elapsed
 }

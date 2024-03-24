@@ -31,16 +31,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	var mode = reqBody["mode"].(string)
 
 	// Process the message (encrypt or decrypt)
-	result := cipher.GoBlockC(message, key, mode, isEncrypt)
-	fmt.Println(result)
+	result, timeElapsed := cipher.GoBlockC(message, key, mode, isEncrypt)
+	fmt.Println(result, timeElapsed.String())
 
-	js, err := json.Marshal(result)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	response := map[string]interface{}{
+		"result":      result,
+		"timeElapsed": timeElapsed.String(),
 	}
+
+	// Send response
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	json.NewEncoder(w).Encode(response)
+
+	return
 }
 
 func main() {
