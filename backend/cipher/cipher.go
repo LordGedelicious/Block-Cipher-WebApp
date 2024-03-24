@@ -142,7 +142,8 @@ func ofb(messageBlocks [][]byte, key []byte, isEncrypt bool) [][]byte {
 	// Random IV
 	shiftRegister := []byte{62, 52, 12, 66, 21, 82, 112, 173, 92, 216, 252, 222, 2, 82, 11, 97}
 	// TODO: I think this should be better written as a nested loop but at the time of writing, my brain can only work with a single loop
-	for i := 0; i < len(messageBlocks)*len(messageBlocks[0]); i++ {
+	// Edit: DEAR STARS, THIS IS CURSED
+	for i := 0; i < (len(messageBlocks)*len(messageBlocks[0]) - (16 - len(messageBlocks[len(messageBlocks)-1])%16)); i++ {
 		// Encrypt the shift register (with OFB, E = D)
 		output, error := goblockc.Parse(shiftRegister, key, true)
 		if error != nil {
@@ -173,7 +174,7 @@ func cfb(messageBlocks [][]byte, key []byte, isEncrypt bool) [][]byte {
 	// Random IV
 	shiftRegister := []byte{12, 214, 112, 31, 45, 61, 83, 72, 115, 221, 75, 53, 251, 79, 27, 183}
 	// TODO: I think this should be better written as a nested loop but at the time of writing, my brain can only work with a single loop
-	for i := 0; i < len(messageBlocks)*len(messageBlocks[0]); i++ {
+	for i := 0; i < (len(messageBlocks)*len(messageBlocks[0]) - (16 - len(messageBlocks[len(messageBlocks)-1])%16)); i++ {
 		// Encrypt the shift register (with CFB, E = D)
 		output, error := goblockc.Parse(shiftRegister, key, true)
 		if error != nil {
